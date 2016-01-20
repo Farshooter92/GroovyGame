@@ -9,7 +9,7 @@ This is a simple 2D game using LibGDX as its engine.
 This project was created so I could get some practice with implementing a scripting language into LibGDX.
 
 ##Installation
-All the source files are included in the project. You will have to configure the project to work with your system. It's a pain but has to be done because every development environment is going to be a little different. The project was created utilizing JDK 1.7.80.
+All the source files are included in the project. You will have to configure the project to work with your system. It's a pain but has to be done because every development environment is going to be a little different. The project was created utilizing JDK 1.7.80. You will need Groovy to run this.
 
 Videos on getting you up and running with LibGDX:
 
