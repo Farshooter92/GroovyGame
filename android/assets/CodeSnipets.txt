@@ -1,0 +1,26 @@
+// Adding a button
+
+final TextButton button = new TextButton("Click Me", skin, "default");
+		button.setWidth(200);
+		button.setHeight(50);
+
+		final Dialog dialog = new Dialog("Click Message", skin);
+
+		button.addListener(new ClickListener(){
+			@Override
+			public void clicked(InputEvent event, float x, float y)
+			{
+				dialog.show(stage);
+				Timer.schedule(new Timer.Task()
+				{
+					@Override
+					public void run() {
+						dialog.hide();
+					}
+				}, 5);
+
+			}
+		});
+
+		stage.addActor(button);
+
