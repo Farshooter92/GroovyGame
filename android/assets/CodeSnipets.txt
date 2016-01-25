@@ -24,3 +24,64 @@ final TextButton button = new TextButton("Click Me", skin, "default");
 
 		stage.addActor(button);
 
+    ///////////////////////////////////////////////////////////////////////////
+	//								Groovy									 //
+	///////////////////////////////////////////////////////////////////////////
+
+	static void runWithGroovyShell() throws Exception
+	{
+		new GroovyShell().parse( new File("test.groovy") ).invokeMethod( "hello_world", null ) ;
+	}
+
+	static void runWithGroovyClassLoader() throws Exception
+	{
+		// Declaring a class to conform to a java interface class would get rid of
+		// a lot of the reflection here
+		Class scriptClass = new GroovyClassLoader().parseClass( new File("test.groovy") ) ;
+		Object scriptInstance = scriptClass.newInstance() ;
+		scriptClass.getDeclaredMethod( "hello_world", new Class[] {} ).invoke( scriptInstance, new Object[] {} ) ;
+	}
+
+	static void runWithGroovyScriptEngine() throws Exception
+	{
+		// Declaring a class to conform to a java interface class would get rid of
+		// a lot of the reflection here
+		Class scriptClass = new GroovyScriptEngine( "." ).loadScriptByName("test.groovy") ;
+		Object scriptInstance = scriptClass.newInstance() ;
+		scriptClass.getDeclaredMethod( "hello_world", new Class[] {} ).invoke( scriptInstance, new Object[] {} ) ;
+	}
+
+	void passRotateObjectToGroovy() throws Exception
+	{
+		// Varaibles that I want to pass to the script
+		Binding binding = new Binding();
+		binding.setVariable("speed", 45);
+
+		final GroovyShell shell = new GroovyShell(binding);
+
+		File file = new File("rotateObject.groovy");
+
+		Script script = shell.parse(file);
+
+		script.run();
+		//script.invokeMethod("test", stage.getRoot().findActor("TestActor"));
+	}
+
+	///////////////////////////////////////////////////////////////////////////
+    	//								Misc									 //
+    	///////////////////////////////////////////////////////////////////////////
+
+        	for(int i = 0; i < actors.size -1; i++)
+        	{
+        		if(actors.get(i).getName().compareTo("GroupTestActors") == 0)
+        		{
+        			g = (Group) actors.get(i);
+        		}
+        	}
+
+
+        	///////////////////////////////////////////////////////////////////////////
+
+        	// Invoke the constructor passing in the reference to the actor.
+            // DOES NOT WORK. ONLY A METHOD CALL.
+            //script.invokeMethod("Constructor", this);

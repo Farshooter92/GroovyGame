@@ -3,8 +3,6 @@ package com.benstone;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -16,12 +14,13 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.benstone.Actors.TestActor;
+import com.benstone.Actors.GroovyActor;
+import groovy.lang.Binding;
 import groovy.lang.GroovyShell ;
 import groovy.lang.GroovyClassLoader ;
+import groovy.lang.Script;
 import groovy.util.GroovyScriptEngine ;
 import java.io.File;
-import com.badlogic.gdx.utils.Timer;
 
 public class GroovyGame extends ApplicationAdapter implements InputProcessor{
 
@@ -34,10 +33,17 @@ public class GroovyGame extends ApplicationAdapter implements InputProcessor{
 	private TextButton startButton;
 	private TextButton quitButton;
 
+	// Groovy
+	private GroovyShell shell;
+
 	@Override
 	public void create () {
 
+		// Scene2D
 		stage = new Stage(new ScreenViewport());
+
+		// Groovy
+		shell = new GroovyShell(new Binding());
 
 		// Initialize UI
 		skin = new Skin(Gdx.files.internal("uiskin.json"));
@@ -67,16 +73,16 @@ public class GroovyGame extends ApplicationAdapter implements InputProcessor{
 
 		// Create Actors
 		Texture texture = new Texture(Gdx.files.internal("badlogic.jpg"));
-		TestActor myTestActor = new TestActor(texture);
+		GroovyActor myGroovyActor = new GroovyActor(texture, shell, "rotateObject.groovy");
 
 		// Set Actor Properties
-		myTestActor.setName("TestActor");
+		myGroovyActor.setName("GroovyActor");
 		Vector2 pos = stage.screenToStageCoordinates(
 				new Vector2(
 						(float) Gdx.graphics.getWidth()/2 - texture.getWidth()/2,
 						(float) Gdx.graphics.getHeight()/2 + texture.getHeight()/2));
 
-		myTestActor.setPosition(pos.x, pos.y);
+		myGroovyActor.setPosition(pos.x, pos.y);
 
 		// Create Groups
 		Group testActors = new Group();
@@ -86,7 +92,7 @@ public class GroovyGame extends ApplicationAdapter implements InputProcessor{
 
 		// Add actors to groups
 		// Order they are added is the order they are drawn!
-		testActors.addActor(myTestActor);
+		testActors.addActor(myGroovyActor);
 
 		// Add Actors to stage
 		stage.addActor(testActors);
@@ -96,17 +102,6 @@ public class GroovyGame extends ApplicationAdapter implements InputProcessor{
 		// Order that the events arrive. Priority matters.
 		InputMultiplexer im = new InputMultiplexer(stage, this);
 		Gdx.input.setInputProcessor(im);
-
-		// Groovy
-		try {
-			runWithGroovyShell() ;
-			runWithGroovyClassLoader() ;
-			runWithGroovyScriptEngine() ;
-		}
-		catch (Exception e)
-		{
-			System.out.println("We done messed up.");
-		}
 
 	}
 
@@ -148,18 +143,9 @@ public class GroovyGame extends ApplicationAdapter implements InputProcessor{
 		// stage.getRoot().findActor("ace");
 		Array<Actor> actors = stage.getActors();
 
-		Group g = null;
+		Group g = stage.getRoot().findActor("GroupTestActors");
 
-		// TODO Find a better way to get a actor from the stage
-		for(int i = 0; i < actors.size -1; i++)
-		{
-			if(actors.get(i).getName().compareTo("GroupTestActors") == 0)
-			{
-				g = (Group) actors.get(i);
-			}
-		}
-
-		TestActor actor = (TestActor) g.findActor("TestActor");
+		GroovyActor actor = (GroovyActor) g.findActor("GroovyActor");
 
 		if (keycode == Input.Keys.RIGHT)
 		{
@@ -210,11 +196,13 @@ public class GroovyGame extends ApplicationAdapter implements InputProcessor{
 
 		// True if you only want to catch touchables
 		// Can be overriden to be different shapes
-		Actor hitActor = stage.hit(coord.x, coord.y, false);
+		GroovyActor hitActor = (GroovyActor) stage.hit(coord.x, coord.y, false);
 
 		if (hitActor != null)
 		{
 			Gdx.app.log("Hit", hitActor.getName());
+
+			// TODO Bring up Dialog that allows you to edit the script file of the hitActor and print any exceptions that occur
 		}
 
 		return true;
@@ -240,30 +228,4 @@ public class GroovyGame extends ApplicationAdapter implements InputProcessor{
 		return false;
 	}
 
-	///////////////////////////////////////////////////////////////////////////
-	//								Groovy									 //
-	///////////////////////////////////////////////////////////////////////////
-
-	static void runWithGroovyShell() throws Exception
-	{
-		new GroovyShell().parse( new File("test.groovy") ).invokeMethod( "hello_world", null ) ;
-	}
-
-	static void runWithGroovyClassLoader() throws Exception
-	{
-		// Declaring a class to conform to a java interface class would get rid of
-		// a lot of the reflection here
-		Class scriptClass = new GroovyClassLoader().parseClass( new File("test.groovy") ) ;
-		Object scriptInstance = scriptClass.newInstance() ;
-		scriptClass.getDeclaredMethod( "hello_world", new Class[] {} ).invoke( scriptInstance, new Object[] {} ) ;
-	}
-
-	static void runWithGroovyScriptEngine() throws Exception
-	{
-		// Declaring a class to conform to a java interface class would get rid of
-		// a lot of the reflection here
-		Class scriptClass = new GroovyScriptEngine( "." ).loadScriptByName("test.groovy") ;
-		Object scriptInstance = scriptClass.newInstance() ;
-		scriptClass.getDeclaredMethod( "hello_world", new Class[] {} ).invoke( scriptInstance, new Object[] {} ) ;
-	}
 }
