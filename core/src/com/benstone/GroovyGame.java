@@ -13,6 +13,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import com.badlogic.gdx.utils.viewport.FillViewport;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.benstone.Actors.GroovyActor;
 import groovy.lang.Binding;
@@ -40,18 +43,22 @@ public class GroovyGame extends ApplicationAdapter implements InputProcessor{
 	public void create () {
 
 		// Scene2D
+		// stage = new Stage(new FitViewport(640, 480));
+		// stage = new Stage(new ExtendViewport(640, 480));
 		stage = new Stage(new ScreenViewport());
 
 		// Groovy
 		shell = new GroovyShell(new Binding());
 
 		// Initialize UI
+		// TODO Initialize using code instead of json
 		skin = new Skin(Gdx.files.internal("uiskin.json"));
 
 		table = new Table();
-		table.setWidth(stage.getWidth());
-		table.align(Align.center | Align.top);
+		table.setFillParent(true);
+		// table.align(Align.center | Align.top);
 
+		// table.setClip(true);
 		table.setPosition(0, Gdx.graphics.getHeight());
 
 		startButton = new TextButton("New Game", skin);
@@ -98,6 +105,11 @@ public class GroovyGame extends ApplicationAdapter implements InputProcessor{
 		stage.addActor(testActors);
 		stage.addActor(table);
 
+		// Debug
+		table.setDebug(true);
+
+		// Add widgets to table here
+		// Use ChangeListener where applicable in widgets instead of Clicked
 
 		// Order that the events arrive. Priority matters.
 		InputMultiplexer im = new InputMultiplexer(stage, this);
@@ -129,6 +141,15 @@ public class GroovyGame extends ApplicationAdapter implements InputProcessor{
 		super.dispose();
 
 		// TODO Free up resources
+		// If it implements the Disposable interface then it should be disposed.
+		stage.dispose();
+	}
+
+	@Override
+	public void resize(int width, int height)
+	{
+		// true means camera will be recentered. Good for UI
+		stage.getViewport().update(width, height, true);
 
 	}
 

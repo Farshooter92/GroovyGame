@@ -50,11 +50,11 @@ public class GroovyActor extends Image
             }
         }
 
-        // TODO figure a way to store data in script
         // Invoke the constructor passing in the reference to the actor.
         // DOES NOT WORK. ONLY A METHOD CALL.
         //script.invokeMethod("Constructor", this);
 
+        // Storing Data into the script
         script.setProperty("Actor", this);
 
         // Debugging purposes only. Should be called outside the class
