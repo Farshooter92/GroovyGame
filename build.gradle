@@ -11,6 +11,7 @@ buildscript {
 allprojects {
     apply plugin: "eclipse"
     apply plugin: "idea"
+    apply plugin: 'groovy'
 
     version = '1.0'
     ext {
@@ -26,6 +27,11 @@ allprojects {
         mavenCentral()
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven { url "https://oss.sonatype.org/content/repositories/releases/" }
+    }
+
+    dependencies {
+        compile 'org.codehaus.groovy:groovy-all:2.4.5'
+        testCompile 'junit:junit:4.12'
     }
 }
 
