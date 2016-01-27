@@ -30,8 +30,7 @@ allprojects {
     }
 
     dependencies {
-        compile 'org.codehaus.groovy:groovy-all:2.4.5'
-        testCompile 'junit:junit:4.12'
+        compile 'org.codehaus.groovy:groovy-all:2.4.4'
     }
 }
 
