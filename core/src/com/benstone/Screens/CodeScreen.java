@@ -1,17 +1,13 @@
 package com.benstone.Screens;
 
 import com.badlogic.gdx.*;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
-import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.benstone.GroovyGame;
 
@@ -32,9 +28,10 @@ public class CodeScreen implements Screen, InputProcessor
     private Stage stage;
 
     // UI
-    private Table root;
-    private TextArea codeArea;
+    private Table rootTable;
     private Skin skin;
+    private TextArea codeArea;
+
 
     ///////////////////////////////////////////////////////////////////////////
     //						    Constructors								 //
@@ -50,10 +47,12 @@ public class CodeScreen implements Screen, InputProcessor
         stage = new Stage(new ScreenViewport());
 
         // UI
-        root = new Table();
+        rootTable = new Table();
 
         // Skin acts as a container for all drawables
         skin = new Skin();
+
+        skin.add("default", new BitmapFont(Gdx.files.internal("calibri.fnt")));
 
         skin.add("cursor", new Texture("textCursor.png"));
 
@@ -65,33 +64,51 @@ public class CodeScreen implements Screen, InputProcessor
 
 
         // Want table to take the whole screen
-        root.setFillParent(true);;
+        rootTable.setFillParent(true);;
 
         // Clipping
         // table.setClip(true);
 
         // Initialize Widgets
 
+        Window.WindowStyle codeWindowStyle = new Window.WindowStyle();
+        codeWindowStyle.titleFont = skin.getFont("default");
+        codeWindowStyle.titleFontColor = Color.BLACK;
+        codeWindowStyle.background = skin.newDrawable("white", Color.WHITE);
+        codeWindowStyle.stageBackground = skin.newDrawable("white", Color.BLUE);
+        skin.add("default", codeWindowStyle);
+
         // Set up the style for the code area
         TextField.TextFieldStyle codeAreaStyle = new TextField.TextFieldStyle();
-        codeAreaStyle.font = new BitmapFont(Gdx.files.internal("calibri.fnt"));
-        codeAreaStyle.fontColor = Color.GREEN;
+        codeAreaStyle.font = skin.getFont("default");
+        codeAreaStyle.fontColor = Color.BLACK;
         codeAreaStyle.cursor = skin.getDrawable("cursor");
-        codeAreaStyle.background = skin.newDrawable("white", Color.BLUE);;
+        codeAreaStyle.background = skin.newDrawable("white", Color.WHITE);
+        skin.add("default", codeAreaStyle);
 
-        codeArea = new TextArea("Enter Code Here", codeAreaStyle);
+        // Initialize Widgets with skin
+        codeArea = new TextArea("Enter Code Here", skin);
+        Window codeWindow = new Window("Code Editor", codeWindowStyle);
+        //codeWindow.add(codeArea);
+
+        Window actionButtonsWindow = new Window("Action Buttons", codeWindowStyle);
+
+        Window consoleWindow = new Window("Console", codeWindowStyle);
 
         // Add widgets to table here
         // Table formatting is sequential from top to bottom
         // Wrap widgets in Container to do manual transforms
         // Use ChangeListener where applicable in widgets instead of Clicked
-        root.add(codeArea).expand();
+        rootTable.add(codeArea).expand().fill();
+        rootTable.add(actionButtonsWindow).width(150).fillY();
+        rootTable.row();
+        rootTable.add(consoleWindow).colspan(2).height(100).fillX();
 
         // Add actors to stage
-        stage.addActor(root);
+        stage.addActor(rootTable);
 
         // Debug
-        root.setDebug(true);
+        rootTable.setDebug(true);
 
         // Order that the events arrive. Priority matters.
         InputMultiplexer im = new InputMultiplexer(stage, this);
