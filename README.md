@@ -11,6 +11,8 @@ This project was created so I could get some practice with implementing a script
 ##Installation
 All the source files are included in the project. You will have to configure the project to work with your system. It's a pain but has to be done because every development environment is going to be a little different. The project was created utilizing JDK 1.7.80. You will need Groovy to run this.
 
+All the dependices should be handled through Gradle. If you have a ClassNotFoundException please follow the instructions [here](http://stackoverflow.com/questions/34136525/libgdx-intellij-class-not-found-exception). That should take care of it.
+
 Videos on getting you up and running with LibGDX:
 
 [Configuring your development enviornment](https://www.youtube.com/watch?v=Huifd-C2KrI&index=1&list=PLS9MbmO_ssyCZ9Tjfay2tOQoaOVoG59Iy)
