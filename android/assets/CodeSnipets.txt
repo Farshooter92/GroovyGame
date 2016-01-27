@@ -68,8 +68,8 @@ final TextButton button = new TextButton("Click Me", skin, "default");
 	}
 
 	///////////////////////////////////////////////////////////////////////////
-    	//								Misc									 //
-    	///////////////////////////////////////////////////////////////////////////
+    //								Misc									 //
+    ///////////////////////////////////////////////////////////////////////////
 
         	for(int i = 0; i < actors.size -1; i++)
         	{
@@ -85,3 +85,70 @@ final TextButton button = new TextButton("Click Me", skin, "default");
         	// Invoke the constructor passing in the reference to the actor.
             // DOES NOT WORK. ONLY A METHOD CALL.
             //script.invokeMethod("Constructor", this);
+
+    ///////////////////////////////////////////////////////////////////////////
+    //								INPUT									 //
+    ///////////////////////////////////////////////////////////////////////////
+
+            @Override
+            	public boolean keyDown(int keycode)
+            	{
+            		// stage is just a container
+            		// stage.getRoot().findActor("ace");
+            		Array<Actor> actors = stage.getActors();
+
+            		Group g = stage.getRoot().findActor("GroupTestActors");
+
+            		GroovyActor actor = (GroovyActor) g.findActor("GroovyActor");
+
+            		if (keycode == Input.Keys.RIGHT)
+            		{
+            			if(Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT))
+            			{
+            				actor.setRotation(actor.getRotation() + 1f);
+            			}
+            			else
+            			{
+            				g.setRotation(g.getRotation() + 1f);
+            			}
+            		}
+
+            		if (keycode == Input.Keys.LEFT)
+            		{
+            			if(Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT))
+            			{
+            				actor.setRotation(actor.getRotation() - 1f);
+            			}
+            			else
+            			{
+            				g.setRotation(g.getRotation() - 1f);
+            			}
+            		}
+
+            		return true;
+
+            	}
+
+    ////////////////////////////////////////////////////////
+    @Override
+    	public boolean touchDown(int screenX, int screenY, int pointer, int button)
+    	{
+    		// Screen Coords Top Left of screen
+    		// Stage Coords bottom left of the world
+
+    		// Normally you should store this variable somewhere else and override its value
+    		Vector2 coord = stage.screenToStageCoordinates(new Vector2((float) screenX, (float) screenY));
+
+    		// True if you only want to catch touchables
+    		// Can be overriden to be different shapes
+    		GroovyActor hitActor = (GroovyActor) stage.hit(coord.x, coord.y, false);
+
+    		if (hitActor != null)
+    		{
+    			Gdx.app.log("Hit", hitActor.getName());
+
+    			// TODO Bring up Dialog that allows you to edit the script file of the hitActor and print any exceptions that occur
+    		}
+
+    		return true;
+    	}
