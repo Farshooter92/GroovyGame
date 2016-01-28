@@ -5,11 +5,12 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.StringBuilder;
 import groovy.lang.GroovyShell;
 import groovy.lang.Script;
+import org.codehaus.groovy.control.CompilationFailedException;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 
 /**
  * Created by Ben on 1/22/2016.
@@ -21,7 +22,7 @@ public class GroovyActor extends Image
     private Script script;
 
     // TODO set to the script being evaluated
-    private String groovyScript;
+    private String groovyScriptText;
 
     public GroovyActor(Texture texture, GroovyShell inShell, String scriptFileName)
     {
@@ -37,23 +38,17 @@ public class GroovyActor extends Image
             file = new File(scriptFileName);
 
             script = inShell.parse(file);
+
+            groovyScriptText = fileToString(file);
         }
         catch (IOException e)
         {
             // Print a message saying we caught the exception
-            Gdx.app.log("File not found exception", scriptFileName);
+            Gdx.app.log(scriptFileName, e.getMessage());
 
-            // Try to set the file to the default
-            try
-            {
-                file = new File("default.groovy");
+            // We couldn't load the script so set it to default
+            resetScriptToDefault();
 
-                script = inShell.parse(file);
-            }
-            catch (IOException ioe)
-            {
-                Gdx.app.log("File not found exception", "default.groovy");
-            }
         }
 
         // Invoke the constructor passing in the reference to the actor.
@@ -65,7 +60,6 @@ public class GroovyActor extends Image
 
         // Debugging purposes only. Should be called outside the class
         // runScript();
-
     }
 
     @Override
@@ -80,13 +74,90 @@ public class GroovyActor extends Image
 
     }
 
-    public void evaluateScript(String textScript)
+    ///////////////////////////////////////////////////////////////////////////
+    //			    	        Scripting Specific							 //
+    ///////////////////////////////////////////////////////////////////////////
+
+    private void evaluateScript(String textScript)
     {
         script = shell.parse(textScript);
     }
 
+    public void resetScriptToDefault()
+    {
+        // Try to set the file to the default
+        try
+        {
+            File file = new File("default.groovy");
+
+            script = shell.parse(file);
+
+            groovyScriptText = fileToString(file);
+        }
+        catch (IOException ioe)
+        {
+            Gdx.app.log("default.groovy", ioe.getMessage());
+        }
+    }
+
     public void runScript()
     {
-        script.run();
+        if (script != null)
+        {
+            script.run();
+        }
+        else
+        {
+            Gdx.app.log("Error", "Groovy script is null.");
+        }
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    //			    			    Getters  								 //
+    ///////////////////////////////////////////////////////////////////////////
+
+    public String getGroovyScriptText()
+    {
+        return groovyScriptText;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    //			    			    Setters  								 //
+    ///////////////////////////////////////////////////////////////////////////
+
+    public void setGroovyScriptText(String groovyScriptText) throws CompilationFailedException
+    {
+        this.groovyScriptText = groovyScriptText;
+        this.evaluateScript(this.groovyScriptText);
+    }
+
+    public void setGroovyScript(File groovyScriptFile) throws IOException, CompilationFailedException
+    {
+        this.groovyScriptText = fileToString(groovyScriptFile);
+        this.evaluateScript(this.groovyScriptText);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    //						    Utility Methods								 //
+    ///////////////////////////////////////////////////////////////////////////
+
+    static String fileToString(File file) throws IOException
+    {
+        FileReader fr = new FileReader(file);
+        BufferedReader br = new BufferedReader(fr);
+
+        StringBuilder result = new StringBuilder();
+
+        String line = br.readLine();
+
+        while (line != null)
+        {
+            result.append(line + "\n");
+            line = br.readLine();
+        }
+
+        fr.close();
+        br.close();
+        return result.toString();
     }
 }

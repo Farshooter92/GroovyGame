@@ -83,23 +83,27 @@ public class CodeScreen implements Screen, InputProcessor
         // COMPILE BUTTON
 
         TextButton compileButton = new TextButton("Compile", skin);
-        compileButton.addListener(new ChangeListener() {
+        compileButton.addListener(new ChangeListener()
+        {
             @Override
             public void changed (ChangeListener.ChangeEvent event, Actor actor)
             {
-                System.out.println("Compile Button Pressed");
 
                 if (groovyActor != null)
                 {
                     try
                     {
-                        groovyActor.evaluateScript(codeArea.getText());
+                        groovyActor.setGroovyScriptText(codeArea.getText());
                     }
                     catch (CompilationFailedException cfe)
                     {
                         // TODO print message to exception window
                         System.out.println("Script comiplation failed.");
                     }
+                }
+                else
+                {
+                    Gdx.app.log("Error", "Entered Code window with groovyActor set to null");
                 }
 
             }
@@ -110,12 +114,29 @@ public class CodeScreen implements Screen, InputProcessor
         // RUN BUTTON
 
         TextButton runButton = new TextButton("Run", skin);
-        runButton.addListener(new ChangeListener() {
+        runButton.addListener(new ChangeListener()
+        {
             @Override
-            public void changed (ChangeListener.ChangeEvent event, Actor actor) {
-                System.out.println("Run Button Pressed");
-
-                // Switch to play screen and run code
+            public void changed (ChangeListener.ChangeEvent event, Actor actor)
+            {
+                if (groovyActor != null)
+                {
+                    try
+                    {
+                        groovyActor.setGroovyScriptText(codeArea.getText());
+                        groovyActor.runScript();
+                        switchToPlayScreen();
+                    }
+                    catch (CompilationFailedException cfe)
+                    {
+                        // TODO print message to exception window
+                        System.out.println("Script comiplation failed.");
+                    }
+                }
+                else
+                {
+                    Gdx.app.log("Error", "Entered Code window with groovyActor set to null");
+                }
             }
         });
 
@@ -125,10 +146,13 @@ public class CodeScreen implements Screen, InputProcessor
         // RESET BUTTON
 
         TextButton resetButton = new TextButton("Reset", skin);
-        resetButton.addListener(new ChangeListener() {
+        resetButton.addListener(new ChangeListener()
+        {
             @Override
-            public void changed (ChangeListener.ChangeEvent event, Actor actor) {
-                System.out.println("Reset Button Pressed");
+            public void changed (ChangeListener.ChangeEvent event, Actor actor)
+            {
+                groovyActor.resetScriptToDefault();
+                updateCodeArea();
             }
         });
 
@@ -210,6 +234,8 @@ public class CodeScreen implements Screen, InputProcessor
         // Get the currently selected Groovy Actor
         groovyActor = game.playScreen.getCurrentGroovyActor();
 
+        updateCodeArea();
+
         //codeArea.setText();
     }
 
@@ -239,6 +265,17 @@ public class CodeScreen implements Screen, InputProcessor
 
     }
 
+    public void switchToPlayScreen()
+    {
+        game.setScreen(game.playScreen);
+    }
+
+    public void updateCodeArea()
+    {
+        // Change the code area to display the scriptText from the Groovy actor
+        codeArea.setText(groovyActor.getGroovyScriptText());
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     //								Input									 //
     ///////////////////////////////////////////////////////////////////////////
@@ -246,9 +283,9 @@ public class CodeScreen implements Screen, InputProcessor
     @Override
     public boolean keyDown(int keycode)
     {
-        if (keycode == Input.Keys.G)
+        if (keycode == Input.Keys.ESCAPE)
         {
-            game.setScreen(game.playScreen);
+            switchToPlayScreen();
         }
 
         return true;
@@ -296,4 +333,6 @@ public class CodeScreen implements Screen, InputProcessor
     public void setGroovyActor(GroovyActor groovyActor) {
         this.groovyActor = groovyActor;
     }
+
+
 }
