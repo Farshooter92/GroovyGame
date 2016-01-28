@@ -16,7 +16,7 @@ public class GroovyGame extends Game{
 		playScreen = new PlayScreen(this);
 		codeScreen = new CodeScreen(this);
 		// Get the game rolling
-		setScreen(codeScreen);
+		setScreen(playScreen);
 	}
 
 	///////////////////////////////////////////////////////////////////////////

@@ -17,11 +17,17 @@ import java.io.IOException;
  */
 public class GroovyActor extends Image
 {
+    private GroovyShell shell;
     private Script script;
 
-    public GroovyActor(Texture texture, GroovyShell shell, String scriptFileName)
+    // TODO set to the script being evaluated
+    private String groovyScript;
+
+    public GroovyActor(Texture texture, GroovyShell inShell, String scriptFileName)
     {
         super(texture);
+
+        shell = inShell;
 
         setBounds(getX(), getY(), getWidth(), getHeight());
 
@@ -30,7 +36,7 @@ public class GroovyActor extends Image
         try {
             file = new File(scriptFileName);
 
-            script = shell.parse(file);
+            script = inShell.parse(file);
         }
         catch (IOException e)
         {
@@ -42,7 +48,7 @@ public class GroovyActor extends Image
             {
                 file = new File("default.groovy");
 
-                script = shell.parse(file);
+                script = inShell.parse(file);
             }
             catch (IOException ioe)
             {
@@ -58,7 +64,7 @@ public class GroovyActor extends Image
         script.setProperty("Actor", this);
 
         // Debugging purposes only. Should be called outside the class
-        updateScript();
+        // runScript();
 
     }
 
@@ -74,7 +80,12 @@ public class GroovyActor extends Image
 
     }
 
-    public void updateScript()
+    public void evaluateScript(String textScript)
+    {
+        script = shell.parse(textScript);
+    }
+
+    public void runScript()
     {
         script.run();
     }

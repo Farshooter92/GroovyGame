@@ -152,3 +152,22 @@ final TextButton button = new TextButton("Click Me", skin, "default");
 
     		return true;
     	}
+
+///////////////////////////////////////////////////////////////////////////
+    //								UI  									 //
+    ///////////////////////////////////////////////////////////////////////////
+
+Window.WindowStyle codeWindowStyle = new Window.WindowStyle();
+        codeWindowStyle.titleFont = skin.getFont("default");
+        codeWindowStyle.titleFontColor = Color.BLACK;
+        codeWindowStyle.background = skin.newDrawable("white", Color.WHITE);
+        codeWindowStyle.stageBackground = skin.newDrawable("white", Color.BLUE);
+        skin.add("default", codeWindowStyle);
+
+        // Set up the style for the code area
+        TextField.TextFieldStyle codeAreaStyle = new TextField.TextFieldStyle();
+        codeAreaStyle.font = skin.getFont("default");
+        codeAreaStyle.fontColor = Color.BLACK;
+        codeAreaStyle.cursor = skin.getDrawable("cursor");
+        codeAreaStyle.background = skin.newDrawable("white", Color.WHITE);
+        skin.add("default", codeAreaStyle);

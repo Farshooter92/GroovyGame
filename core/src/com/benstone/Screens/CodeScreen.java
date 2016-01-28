@@ -1,15 +1,15 @@
 package com.benstone.Screens;
 
 import com.badlogic.gdx.*;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.benstone.Actors.GroovyActor;
 import com.benstone.GroovyGame;
+import org.codehaus.groovy.control.CompilationFailedException;
 
 /**
  * Created by Ben on 1/27/2016.
@@ -32,6 +32,9 @@ public class CodeScreen implements Screen, InputProcessor
     private Skin skin;
     private TextArea codeArea;
 
+    // Current GroovyActor
+    private GroovyActor groovyActor;
+
 
     ///////////////////////////////////////////////////////////////////////////
     //						    Constructors								 //
@@ -46,69 +49,121 @@ public class CodeScreen implements Screen, InputProcessor
         // stage = new Stage(new ExtendViewport(640, 480));
         stage = new Stage(new ScreenViewport());
 
-        // UI
+        ///////////////////////////////////////////////////////////////////////////
+        //						       ROOT TABLE								 //
+        ///////////////////////////////////////////////////////////////////////////
+
         rootTable = new Table();
 
         // Skin acts as a container for all drawables
-        skin = new Skin();
-
-        skin.add("default", new BitmapFont(Gdx.files.internal("calibri.fnt")));
-
-        skin.add("cursor", new Texture("textCursor.png"));
-
-        Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
-        pixmap.setColor(Color.WHITE);
-        pixmap.fill();
-        skin.add("white", new Texture(pixmap));
-
-
+        skin = new Skin(Gdx.files.internal("uiskin.json"));
 
         // Want table to take the whole screen
-        rootTable.setFillParent(true);;
+        rootTable.center();
+        rootTable.setFillParent(true);
 
-        // Clipping
-        // table.setClip(true);
-
-        // Initialize Widgets
-
-        Window.WindowStyle codeWindowStyle = new Window.WindowStyle();
-        codeWindowStyle.titleFont = skin.getFont("default");
-        codeWindowStyle.titleFontColor = Color.BLACK;
-        codeWindowStyle.background = skin.newDrawable("white", Color.WHITE);
-        codeWindowStyle.stageBackground = skin.newDrawable("white", Color.BLUE);
-        skin.add("default", codeWindowStyle);
-
-        // Set up the style for the code area
-        TextField.TextFieldStyle codeAreaStyle = new TextField.TextFieldStyle();
-        codeAreaStyle.font = skin.getFont("default");
-        codeAreaStyle.fontColor = Color.BLACK;
-        codeAreaStyle.cursor = skin.getDrawable("cursor");
-        codeAreaStyle.background = skin.newDrawable("white", Color.WHITE);
-        skin.add("default", codeAreaStyle);
+        ///////////////////////////////////////////////////////////////////////////
+        //						        CODE AREA								 //
+        ///////////////////////////////////////////////////////////////////////////
 
         // Initialize Widgets with skin
         codeArea = new TextArea("Enter Code Here", skin);
-        Window codeWindow = new Window("Code Editor", codeWindowStyle);
-        //codeWindow.add(codeArea);
+        Window codeWindow = new Window("Code Editor", skin);
+        codeWindow.add(codeArea).expand().fill();
 
-        Window actionButtonsWindow = new Window("Action Buttons", codeWindowStyle);
+        ///////////////////////////////////////////////////////////////////////////
+        //						    ACTION BUTTONS								 //
+        ///////////////////////////////////////////////////////////////////////////
 
-        Window consoleWindow = new Window("Console", codeWindowStyle);
+        Window actionButtonsWindow = new Window("Action Buttons", skin);
+
+        // Align all widgets to top
+        actionButtonsWindow.top();
+
+        // COMPILE BUTTON
+
+        TextButton compileButton = new TextButton("Compile", skin);
+        compileButton.addListener(new ChangeListener() {
+            @Override
+            public void changed (ChangeListener.ChangeEvent event, Actor actor)
+            {
+                System.out.println("Compile Button Pressed");
+
+                if (groovyActor != null)
+                {
+                    try
+                    {
+                        groovyActor.evaluateScript(codeArea.getText());
+                    }
+                    catch (CompilationFailedException cfe)
+                    {
+                        // TODO print message to exception window
+                        System.out.println("Script comiplation failed.");
+                    }
+                }
+
+            }
+        });
+
+        actionButtonsWindow.add(compileButton).expandX().fillX();
+
+        // RUN BUTTON
+
+        TextButton runButton = new TextButton("Run", skin);
+        runButton.addListener(new ChangeListener() {
+            @Override
+            public void changed (ChangeListener.ChangeEvent event, Actor actor) {
+                System.out.println("Run Button Pressed");
+
+                // Switch to play screen and run code
+            }
+        });
+
+        actionButtonsWindow.row();
+        actionButtonsWindow.add(runButton).expandX().fillX();
+
+        // RESET BUTTON
+
+        TextButton resetButton = new TextButton("Reset", skin);
+        resetButton.addListener(new ChangeListener() {
+            @Override
+            public void changed (ChangeListener.ChangeEvent event, Actor actor) {
+                System.out.println("Reset Button Pressed");
+            }
+        });
+
+        actionButtonsWindow.row();
+        actionButtonsWindow.add(resetButton).expandX().fillX();
+
+        ///////////////////////////////////////////////////////////////////////////
+        //					CONSOLE AND EXCEPTION WINDOWS						 //
+        ///////////////////////////////////////////////////////////////////////////
+
+        Window consoleWindow = new Window("Console", skin);
+        Window exceptionsWindow = new Window("Exceptions", skin);
+        SplitPane sp = new SplitPane(consoleWindow, exceptionsWindow, false, skin);
+
+        ///////////////////////////////////////////////////////////////////////////
+        //				ADD WIDGETS TO TABLE AND ADD ACTORS TO STAGE           	 //
+        ///////////////////////////////////////////////////////////////////////////
 
         // Add widgets to table here
         // Table formatting is sequential from top to bottom
         // Wrap widgets in Container to do manual transforms
         // Use ChangeListener where applicable in widgets instead of Clicked
-        rootTable.add(codeArea).expand().fill();
+        rootTable.add(codeWindow).expand().fill();
         rootTable.add(actionButtonsWindow).width(150).fillY();
         rootTable.row();
-        rootTable.add(consoleWindow).colspan(2).height(100).fillX();
+        //rootTable.add(consoleWindow).colspan(2).height(100).fillX();
+        rootTable.add(sp).colspan(2).height(100).fillX();
+
 
         // Add actors to stage
         stage.addActor(rootTable);
 
         // Debug
         rootTable.setDebug(true);
+        actionButtonsWindow.debug();
 
         // Order that the events arrive. Priority matters.
         InputMultiplexer im = new InputMultiplexer(stage, this);
@@ -151,6 +206,11 @@ public class CodeScreen implements Screen, InputProcessor
         // Order that the events arrive. Priority matters.
         InputMultiplexer im = new InputMultiplexer(stage, this);
         Gdx.input.setInputProcessor(im);
+
+        // Get the currently selected Groovy Actor
+        groovyActor = game.playScreen.getCurrentGroovyActor();
+
+        //codeArea.setText();
     }
 
     @Override
@@ -227,5 +287,13 @@ public class CodeScreen implements Screen, InputProcessor
     @Override
     public boolean scrolled(int amount) {
         return false;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    //								Setters									 //
+    ///////////////////////////////////////////////////////////////////////////
+
+    public void setGroovyActor(GroovyActor groovyActor) {
+        this.groovyActor = groovyActor;
     }
 }

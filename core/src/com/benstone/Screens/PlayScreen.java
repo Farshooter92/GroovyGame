@@ -26,6 +26,8 @@ public class PlayScreen implements Screen, InputProcessor
     // Groovy
     private GroovyShell shell;
 
+    private GroovyActor currentGroovyActor;
+
     public PlayScreen(GroovyGame inGame)
     {
         game = inGame;
@@ -63,6 +65,9 @@ public class PlayScreen implements Screen, InputProcessor
 
         // Add Actors to stage
         stage.addActor(testActors);
+
+        // TODO make it so currentGroovyActor is set by clicking on it
+        currentGroovyActor = myGroovyActor;
 
     }
 
@@ -183,5 +188,14 @@ public class PlayScreen implements Screen, InputProcessor
     @Override
     public boolean scrolled(int amount) {
         return false;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    //								Getters									 //
+    ///////////////////////////////////////////////////////////////////////////
+
+    public GroovyActor getCurrentGroovyActor()
+    {
+        return currentGroovyActor;
     }
 }
