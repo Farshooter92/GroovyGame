@@ -141,7 +141,7 @@ public class GroovyActor extends Image
     //						    Utility Methods								 //
     ///////////////////////////////////////////////////////////////////////////
 
-    static String fileToString(File file) throws IOException
+    public static String fileToString(File file) throws IOException
     {
         FileReader fr = new FileReader(file);
         BufferedReader br = new BufferedReader(fr);

@@ -1,15 +1,21 @@
 package com.benstone.Screens;
 
 import com.badlogic.gdx.*;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.StringBuilder;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.benstone.Actors.GroovyActor;
 import com.benstone.GroovyGame;
 import org.codehaus.groovy.control.CompilationFailedException;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * Created by Ben on 1/27/2016.
@@ -31,6 +37,8 @@ public class CodeScreen implements Screen, InputProcessor
     private Table rootTable;
     private Skin skin;
     private TextArea codeArea;
+    private Label consoleText;
+    private Label exceptionsText;
 
     // Current GroovyActor
     private GroovyActor groovyActor;
@@ -69,6 +77,7 @@ public class CodeScreen implements Screen, InputProcessor
         // Initialize Widgets with skin
         codeArea = new TextArea("Enter Code Here", skin);
         Window codeWindow = new Window("Code Editor", skin);
+        codeWindow.setMovable(false);
         codeWindow.add(codeArea).expand().fill();
 
         ///////////////////////////////////////////////////////////////////////////
@@ -76,7 +85,7 @@ public class CodeScreen implements Screen, InputProcessor
         ///////////////////////////////////////////////////////////////////////////
 
         Window actionButtonsWindow = new Window("Action Buttons", skin);
-
+        actionButtonsWindow.setMovable(false);
         // Align all widgets to top
         actionButtonsWindow.top();
 
@@ -94,11 +103,12 @@ public class CodeScreen implements Screen, InputProcessor
                     try
                     {
                         groovyActor.setGroovyScriptText(codeArea.getText());
+                        // If successful clear the exceptions list
+                        logException("");
                     }
                     catch (CompilationFailedException cfe)
                     {
-                        // TODO print message to exception window
-                        System.out.println("Script comiplation failed.");
+                        logException(cfe.getMessage());
                     }
                 }
                 else
@@ -129,8 +139,7 @@ public class CodeScreen implements Screen, InputProcessor
                     }
                     catch (CompilationFailedException cfe)
                     {
-                        // TODO print message to exception window
-                        System.out.println("Script comiplation failed.");
+                        logException(cfe.getMessage());
                     }
                 }
                 else
@@ -163,8 +172,33 @@ public class CodeScreen implements Screen, InputProcessor
         //					CONSOLE AND EXCEPTION WINDOWS						 //
         ///////////////////////////////////////////////////////////////////////////
 
-        Window consoleWindow = new Window("Console", skin);
+        // This is a label inside of a scroll pane inside of a window
+        consoleText = new Label("", skin);
+        consoleText.setAlignment(Align.topLeft);
+
+        try {
+            File hintFile = new File("hints.txt");
+            consoleText.setText(GroovyActor.fileToString(hintFile));
+        }
+        catch (IOException e)
+        {
+            Gdx.app.log("Error", "Can't find hints.txt");
+        }
+
+        ScrollPane consoleScroll = new ScrollPane(consoleText, skin);
+        Window consoleWindow = new Window("Helpful Tips", skin);
+        consoleWindow.setMovable(false);
+        consoleWindow.add(consoleScroll).left().top().expand().fill();
+
+        // This is a label inside of a scroll pane inside of a window
+        exceptionsText = new Label("", skin,"default-font", Color.RED);
+        exceptionsText.setAlignment(Align.topLeft);
+        ScrollPane exceptionsScroll = new ScrollPane(exceptionsText, skin);
         Window exceptionsWindow = new Window("Exceptions", skin);
+        exceptionsWindow.setMovable(false);
+        exceptionsWindow.add(exceptionsScroll).left().top().expand().fill();
+
+        // Put both windows in a horizontal scroll pane
         SplitPane sp = new SplitPane(consoleWindow, exceptionsWindow, false, skin);
 
         ///////////////////////////////////////////////////////////////////////////
@@ -179,7 +213,7 @@ public class CodeScreen implements Screen, InputProcessor
         rootTable.add(actionButtonsWindow).width(150).fillY();
         rootTable.row();
         //rootTable.add(consoleWindow).colspan(2).height(100).fillX();
-        rootTable.add(sp).colspan(2).height(100).fillX();
+        rootTable.add(sp).colspan(2).height(125).fillX();
 
 
         // Add actors to stage
@@ -237,7 +271,8 @@ public class CodeScreen implements Screen, InputProcessor
 
     @Override
     public void resize(int width, int height) {
-
+        // true means camera will be recentered. Good for UI
+        stage.getViewport().update(width, height, true);
     }
 
     @Override
@@ -270,6 +305,11 @@ public class CodeScreen implements Screen, InputProcessor
     {
         // Change the code area to display the scriptText from the Groovy actor
         codeArea.setText(groovyActor.getGroovyScriptText());
+    }
+
+    private void logException(String exception)
+    {
+        exceptionsText.setText(exception);
     }
 
     ///////////////////////////////////////////////////////////////////////////

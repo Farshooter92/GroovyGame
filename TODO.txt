@@ -1,3 +1,2 @@
-Add spacing to code editor
 Add box2d actor support
-Add support for the console and the exception list
+Create javadoc for Box2d actor so users can use it as a scripting reference

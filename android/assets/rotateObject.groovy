@@ -4,9 +4,6 @@ import com.badlogic.gdx.scenes.scene2d.Actor
 
 // Properties
 Actor actor = (Actor)getProperty("Actor");
-String name = "Pookie"
-
-println name
 
 if (actor != null)
 {

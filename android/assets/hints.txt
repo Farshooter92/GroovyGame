@@ -1,0 +1,7 @@
+Every script has access to the actor the script is attached to.
+To get this actor use the statement:
+    Actor actor = (Actor)getProperty("Actor")
+
+For more information on the actor class check out the documentation at
+https://libgdx.badlogicgames.com/nightlies/docs/api/com/badlogic/gdx/scenes/scene2d/Actor.html
+
