@@ -55,12 +55,12 @@ public class CodeScreen implements Screen, InputProcessor
 
         rootTable = new Table();
 
-        // Skin acts as a container for all drawables
-        skin = new Skin(Gdx.files.internal("uiskin.json"));
-
         // Want table to take the whole screen
         rootTable.center();
         rootTable.setFillParent(true);
+
+        // Skin acts as a container for all drawables
+        skin = new Skin(Gdx.files.internal("uiskin.json"));
 
         ///////////////////////////////////////////////////////////////////////////
         //						        CODE AREA								 //
@@ -188,10 +188,6 @@ public class CodeScreen implements Screen, InputProcessor
         // Debug
         rootTable.setDebug(true);
         actionButtonsWindow.debug();
-
-        // Order that the events arrive. Priority matters.
-        InputMultiplexer im = new InputMultiplexer(stage, this);
-        Gdx.input.setInputProcessor(im);
     }
 
     ///////////////////////////////////////////////////////////////////////////

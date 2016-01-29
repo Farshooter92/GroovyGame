@@ -4,6 +4,7 @@ import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.GL20;
 import com.benstone.Screens.CodeScreen;
 import com.benstone.Screens.PlayScreen;
+import com.benstone.Screens.SplashScreen;
 
 public class GroovyGame extends Game{
 
@@ -16,7 +17,7 @@ public class GroovyGame extends Game{
 		playScreen = new PlayScreen(this);
 		codeScreen = new CodeScreen(this);
 		// Get the game rolling
-		setScreen(playScreen);
+		setScreen(new SplashScreen(this));
 	}
 
 	///////////////////////////////////////////////////////////////////////////
