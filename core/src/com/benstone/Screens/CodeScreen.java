@@ -12,6 +12,7 @@ import com.badlogic.gdx.utils.StringBuilder;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.benstone.Actors.GroovyActor;
 import com.benstone.GroovyGame;
+import com.benstone.Utils.FileUtils;
 import org.codehaus.groovy.control.CompilationFailedException;
 
 import java.io.File;
@@ -178,7 +179,7 @@ public class CodeScreen implements Screen, InputProcessor
 
         try {
             File hintFile = new File("hints.txt");
-            consoleText.setText(GroovyActor.fileToString(hintFile));
+            consoleText.setText(FileUtils.fileToString(hintFile));
         }
         catch (IOException e)
         {

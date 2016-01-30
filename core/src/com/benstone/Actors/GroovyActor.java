@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.StringBuilder;
+import com.benstone.Utils.FileUtils;
 import groovy.lang.GroovyShell;
 import groovy.lang.Script;
 import org.codehaus.groovy.control.CompilationFailedException;
@@ -20,8 +21,6 @@ public class GroovyActor extends Image
 {
     private GroovyShell shell;
     private Script script;
-
-    // TODO set to the script being evaluated
     private String groovyScriptText;
 
     public GroovyActor(Texture texture, GroovyShell inShell, String scriptFileName)
@@ -39,7 +38,7 @@ public class GroovyActor extends Image
 
             script = inShell.parse(file);
 
-            groovyScriptText = fileToString(file);
+            groovyScriptText = FileUtils.fileToString(file);
         }
         catch (IOException e)
         {
@@ -92,7 +91,7 @@ public class GroovyActor extends Image
 
             script = shell.parse(file);
 
-            groovyScriptText = fileToString(file);
+            groovyScriptText = FileUtils.fileToString(file);
         }
         catch (IOException ioe)
         {
@@ -133,31 +132,9 @@ public class GroovyActor extends Image
 
     public void setGroovyScript(File groovyScriptFile) throws IOException, CompilationFailedException
     {
-        this.groovyScriptText = fileToString(groovyScriptFile);
+        this.groovyScriptText = FileUtils.fileToString(groovyScriptFile);
         this.evaluateScript(this.groovyScriptText);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    //						    Utility Methods								 //
-    ///////////////////////////////////////////////////////////////////////////
 
-    public static String fileToString(File file) throws IOException
-    {
-        FileReader fr = new FileReader(file);
-        BufferedReader br = new BufferedReader(fr);
-
-        StringBuilder result = new StringBuilder();
-
-        String line = br.readLine();
-
-        while (line != null)
-        {
-            result.append(line + "\n");
-            line = br.readLine();
-        }
-
-        fr.close();
-        br.close();
-        return result.toString();
-    }
 }

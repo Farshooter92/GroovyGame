@@ -171,3 +171,35 @@ Window.WindowStyle codeWindowStyle = new Window.WindowStyle();
         codeAreaStyle.cursor = skin.getDrawable("cursor");
         codeAreaStyle.background = skin.newDrawable("white", Color.WHITE);
         skin.add("default", codeAreaStyle);
+
+///////////////////////////////////////////////////////////////////////////
+    //								Actor Creation  						 //
+    ///////////////////////////////////////////////////////////////////////////
+
+// Create Actors
+        Texture texture = new Texture(Gdx.files.internal("badlogic.jpg"));
+        GroovyActor myGroovyActor = new GroovyActor(texture, shell, "rotateObject.groovy");
+
+        // Set Actor Properties
+        myGroovyActor.setName("GroovyActor");
+        Vector2 pos = stageGameWorld.screenToStageCoordinates(
+                new Vector2(
+                        (float) Gdx.graphics.getWidth()/2 - texture.getWidth()/2,
+                        (float) Gdx.graphics.getHeight()/2 + texture.getHeight()/2));
+
+        myGroovyActor.setPosition(pos.x, pos.y);
+
+        // Create Groups
+        Group testActors = new Group();
+
+        // Set group properties
+        testActors.setName("GroupTestActors");
+
+        // Add actors to groups
+        // Order they are added is the order they are drawn!
+        testActors.addActor(myGroovyActor);
+
+        // Add Actors to stageGameWorld
+        stageGameWorld.addActor(testActors);
+
+        currentGroovyActor = myGroovyActor;

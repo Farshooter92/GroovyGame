@@ -4,13 +4,26 @@ import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.viewport.*;
+import com.benstone.Actors.B2DGroovyActor;
 import com.benstone.Actors.GroovyActor;
 import com.benstone.GroovyGame;
+import com.benstone.Utils.Constants;
+import com.benstone.Utils.MapMaker;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
+
+import static com.benstone.Utils.Constants.PPM;
+import static com.benstone.Utils.Constants.MIN_WORLD_WIDTH;
+import static com.benstone.Utils.Constants.MIN_WORLD_HEIGHT;
 
 /**
  * Created by Ben on 1/27/2016.
@@ -20,54 +33,90 @@ public class PlayScreen implements Screen, InputProcessor
     // Reference to main game object to switch screens and access its data
     GroovyGame game;
 
+    // UI
+    private Table rootTable;
+    private Skin skin;
+
     // Scene2D
-    private Stage stage;
+    private Stage stageGameWorld;
+    private Stage stageGUI;
+
+    // Box2D
+    private Box2DDebugRenderer b2dr;
+    private World world;
 
     // Groovy
     private GroovyShell shell;
-
     private GroovyActor currentGroovyActor;
 
     public PlayScreen(GroovyGame inGame)
     {
         game = inGame;
 
-        // Scene2D
-        // stage = new Stage(new FitViewport(640, 480));
-        // stage = new Stage(new ExtendViewport(640, 480));
-        stage = new Stage(new ScreenViewport());
+        // Initialize Scene2D
+        // Pass in the min world width and height
+        stageGameWorld = new Stage(new FitViewport(MIN_WORLD_WIDTH / PPM, MIN_WORLD_HEIGHT / PPM));
 
-        // Groovy
+        ///////////////////////////////////////////////////////////////////////////
+        //				                    UI                               	 //
+        ///////////////////////////////////////////////////////////////////////////
+
+        stageGUI = new Stage(new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
+
+        // Initialize Root Table
+        rootTable = new Table();
+
+        // Want table to take the whole screen
+        rootTable.setFillParent(true);
+        // Align items top down
+        rootTable.center().top();
+
+        // Skin acts as a container for all drawables
+        skin = new Skin(Gdx.files.internal("uiskin.json"));
+
+        // Create Widgets Layouts and Widgets
+        Label title = new Label("Groovy Game Play Screen", skin);
+
+        // Add widgets to rootTable
+        rootTable.add(title).center().top();
+
+        // Add rootTable to stageGameWorld
+        stageGUI.addActor(rootTable);
+
+        ///////////////////////////////////////////////////////////////////////////
+        //				                    Box2D                              	 //
+        ///////////////////////////////////////////////////////////////////////////
+
+        // Initialize Box2D
+        // Set gravity vector and do not allow objects to sleep
+        world = new World(new Vector2(0, -9.8f), false);
+        b2dr = new Box2DDebugRenderer();
+
+        ///////////////////////////////////////////////////////////////////////////
+        //				                    Groovy                             	 //
+        ///////////////////////////////////////////////////////////////////////////
+
+        // Initialize Groovy
         shell = new GroovyShell(new Binding());
 
-        // Create Actors
-        Texture texture = new Texture(Gdx.files.internal("badlogic.jpg"));
-        GroovyActor myGroovyActor = new GroovyActor(texture, shell, "rotateObject.groovy");
+        ///////////////////////////////////////////////////////////////////////////
+        //				             Populate World                            	 //
+        ///////////////////////////////////////////////////////////////////////////
 
-        // Set Actor Properties
-        myGroovyActor.setName("GroovyActor");
-        Vector2 pos = stage.screenToStageCoordinates(
-                new Vector2(
-                        (float) Gdx.graphics.getWidth()/2 - texture.getWidth()/2,
-                        (float) Gdx.graphics.getHeight()/2 + texture.getHeight()/2));
+        B2DGroovyActor actor = new B2DGroovyActor(
+                new Texture(Gdx.files.internal("test.png")), shell, "rotateObject.groovy",
+                world, true, true,
+                Constants.BIT_WALL, Constants.BIT_PLAYER, (short) 0);
 
-        myGroovyActor.setPosition(pos.x, pos.y);
 
-        // Create Groups
-        Group testActors = new Group();
+        stageGameWorld.addActor(actor);
 
-        // Set group properties
-        testActors.setName("GroupTestActors");
+        ///////////////////////////////////////////////////////////////////////////
+        //				                    Debug                             	 //
+        ///////////////////////////////////////////////////////////////////////////
 
-        // Add actors to groups
-        // Order they are added is the order they are drawn!
-        testActors.addActor(myGroovyActor);
-
-        // Add Actors to stage
-        stage.addActor(testActors);
-
-        // TODO make it so currentGroovyActor is set by clicking on it
-        currentGroovyActor = myGroovyActor;
+        // Debug
+        rootTable.setDebug(true);
 
     }
 
@@ -77,7 +126,8 @@ public class PlayScreen implements Screen, InputProcessor
 
     public void update(float delta)
     {
-
+        //takes 1 step in the physics simulation(60 times per second)
+        world.step(1 / 60f, 6, 2);
     }
 
     @Override
@@ -89,9 +139,14 @@ public class PlayScreen implements Screen, InputProcessor
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        stage.act(Gdx.graphics.getDeltaTime());
-        stage.draw();
+        stageGameWorld.act(Gdx.graphics.getDeltaTime());
+        stageGameWorld.draw();
 
+        stageGUI.act(Gdx.graphics.getDeltaTime());
+        stageGUI.draw();
+
+        // Box2D debug renderer
+        b2dr.render(world, stageGUI.getCamera().combined.scl(PPM));
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -104,15 +159,19 @@ public class PlayScreen implements Screen, InputProcessor
 
         // Input
         // Order that the events arrive. Priority matters.
-        InputMultiplexer im = new InputMultiplexer(stage, this);
+        InputMultiplexer im = new InputMultiplexer(stageGameWorld, this);
         Gdx.input.setInputProcessor(im);
+
+
     }
 
     @Override
     public void resize(int width, int height)
     {
+        stageGameWorld.getViewport().update(width, height, false);
+
         // true means camera will be recentered. Good for UI
-        stage.getViewport().update(width, height, true);
+        stageGUI.getViewport().update(width, height, true);
     }
 
     @Override
@@ -137,7 +196,7 @@ public class PlayScreen implements Screen, InputProcessor
     {
         // TODO Free up resources
         // If it implements the Disposable interface then it should be disposed.
-        stage.dispose();
+        stageGameWorld.dispose();
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -167,6 +226,8 @@ public class PlayScreen implements Screen, InputProcessor
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        // TODO make it so currentGroovyActor is set by clicking on it
+
         return false;
     }
 
