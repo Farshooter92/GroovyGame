@@ -1,91 +1,94 @@
 package com.benstone.Actors;
 
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.physics.box2d.World;
-import com.benstone.Screens.PlayScreen;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
 import groovy.lang.GroovyShell;
 
 /**
  * Created by Ben on 1/29/2016.
  */
-public class Player extends B2DGroovyActor implements InputProcessor
-{
-    // Movement States
-    public boolean moveRight = false;
-    public boolean moveLeft = false;
-    public boolean moveUp = false;
-    public boolean moveDown = false;
+public class Player extends GroovyActor{
 
-    // Velocity
-    public float speedSideToSide = 1f;
-    public float speedForwardAndBack = 1f;
+    // Movement
+    private boolean moveLeft = false;
+    private boolean moveRight = false;
+    public float sideToSideSpeed = 1;
 
-    public Player(Texture texture, GroovyShell inShell, String scriptFileName,
-                  final World world, boolean isStatic, boolean fixedRotation,
-                  short cBits, short mBits, short gIndex,
-                  float inSpeedSideToSide, float inSpeedForwardAndBack)
+    private boolean isJumping = false;
+    private boolean isGrounded = false;
+    private float jumpForce = 1;
+
+    public Player(float inWidth, float inHeight, Texture texture, Body inBody,
+                  GroovyShell inShell, String scriptFileName,
+                  float inSideToSideSpeed, float inJumpForce)
     {
-        super(texture, inShell, scriptFileName,
-        world, isStatic, fixedRotation,
-        cBits, mBits, gIndex);
+        super(inWidth, inHeight, texture, inBody,
+            inShell, scriptFileName);
 
-        // Velocity
-        speedSideToSide = inSpeedSideToSide;
-        speedForwardAndBack = inSpeedForwardAndBack;
+        sideToSideSpeed = inSideToSideSpeed;
+        jumpForce = inJumpForce;
     }
 
     ///////////////////////////////////////////////////////////////////////////
-    //						Core Game Loop									 //
+    //				            Core Game Loop                             	 //
     ///////////////////////////////////////////////////////////////////////////
 
     @Override
     public void act(float delta)
     {
         super.act(delta);
+
+        // Reset values so we don't move when nothing is pressed
+        int sideToSideDir = 0;
+
+        // Should I move to left
+        if(moveLeft)
+        {
+            sideToSideDir -= 1;
+        }
+
+        // Should I move to right
+        if(moveRight)
+        {
+            sideToSideDir += 1;
+        }
+
+        // Update Body Position
+        body.setLinearVelocity(new Vector2(sideToSideDir * sideToSideSpeed, body.getLinearVelocity().y));
+
     }
 
     ///////////////////////////////////////////////////////////////////////////
-    //								Input									 //
+    //				                 Movement                             	 //
     ///////////////////////////////////////////////////////////////////////////
 
-    @Override
-    public boolean keyDown(int keycode) {
-        return false;
+    public void Jump()
+    {
+        if (!isJumping && isGrounded) {
+            // Update Body Position
+            body.applyForceToCenter(new Vector2(0, jumpForce), true);
+            isJumping = true;
+        }
     }
 
-    @Override
-    public boolean keyUp(int keycode) {
-        return false;
+    public void Grounded()
+    {
+        isJumping = false;
+        isGrounded = true;
     }
 
-    @Override
-    public boolean keyTyped(char character) {
-        return false;
+    ///////////////////////////////////////////////////////////////////////////
+    //				                 Setters                             	 //
+    ///////////////////////////////////////////////////////////////////////////
+
+    public void setMoveRight(boolean moveRight)
+    {
+        this.moveRight = moveRight;
     }
 
-    @Override
-    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        return false;
-    }
-
-    @Override
-    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        return false;
-    }
-
-    @Override
-    public boolean touchDragged(int screenX, int screenY, int pointer) {
-        return false;
-    }
-
-    @Override
-    public boolean mouseMoved(int screenX, int screenY) {
-        return false;
-    }
-
-    @Override
-    public boolean scrolled(int amount) {
-        return false;
+    public void setMoveLeft(boolean moveLeft)
+    {
+        this.moveLeft = moveLeft;
     }
 }

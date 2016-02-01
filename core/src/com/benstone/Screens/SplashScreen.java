@@ -166,7 +166,7 @@ public class SplashScreen implements Screen, InputProcessor {
     {
         if (keycode == Input.Keys.ENTER)
         {
-            game.setScreen(game.playScreen);
+            game.setScreen(game.getPlayScreen());
         }
 
         return true;

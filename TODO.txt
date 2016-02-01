@@ -1,8 +1,6 @@
-Fix the display so that a pixel of an image is one meter in Box2D. One pixel is a meter. Make sure that image pixel is rendered square and at the proper PPM
+Work On in order:
+create movement joystick and wire it up to player
+create clicking behavior to select objects and go to code editor
+finish TODO's in code
 
-Get the Box2D actors colliders set up properly
-
-Modify teh Box2D actors constructiors to take in position
-
-Add box2d actor support
-Create javadoc for Box2d actor so users can use it as a scripting reference
+Create javadoc for Player actor so users can use it as a scripting reference

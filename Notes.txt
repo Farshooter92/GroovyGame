@@ -1,0 +1,1 @@
+Think about using kinimatic bodies for walls. They can be moved with linear velocity but will not react to collisions. Sounds like a good middle ground.

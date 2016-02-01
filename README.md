@@ -32,3 +32,8 @@ If you are interested in LibGDX tutorials check out the videos from [Conner Ande
 
 ## Comments by the Author
 This is purely experimental. Clone at your own risk.
+
+# Thanks from the Author
+In addition to the people I mentioned in the "Other Links" seciton, I would like to send a HUGE thanks William Mora
+for his tutorial [here](http://williammora.com/a-running-game-with-libgdx-part-1/). His tutorial helped me bridge the
+gap between Scene2D and Box2D.

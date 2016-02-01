@@ -1,16 +1,10 @@
 package com.benstone.Utils;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.utils.StringBuilder;
-import com.benstone.Actors.B2DGroovyActor;
 import com.benstone.Actors.Player;
 import groovy.lang.GroovyShell;
-
-import static com.benstone.Utils.Constants.PPM;
 
 import java.io.*;
 
@@ -51,16 +45,16 @@ public class MapMaker {
                         case 'P':
                             if (player != null)
                             {
-                                player.getBody().setTransform(new Vector2(x / PPM, y / PPM), 0);
+//                                player.getBody().setTransform(new Vector2(x / PPM, y / PPM), 0);
                             }
                             break;
                         case 'W':
 
-                            B2DGroovyActor actor = new B2DGroovyActor(texture, inShell, scriptFileName,
-                                    world, isStatic, fixedRotation,
-                                    cBits, mBits, gIndex);
-                            actor.getBody().setTransform(new Vector2(x / PPM, y / PPM), 0);
-                            stage.addActor(actor);
+//                            B2DGroovyActor actor = new B2DGroovyActor(texture, inShell, scriptFileName,
+//                                    world, isStatic, fixedRotation,
+//                                    cBits, mBits, gIndex);
+//                            actor.getBody().setTransform(new Vector2(x / PPM, y / PPM), 0);
+//                            stage.addActor(actor);
                             break;
                     }
                 }

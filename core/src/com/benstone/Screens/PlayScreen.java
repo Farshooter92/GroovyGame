@@ -3,32 +3,29 @@ package com.benstone.Screens;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
-import com.badlogic.gdx.physics.box2d.World;
-import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.*;
-import com.benstone.Actors.B2DGroovyActor;
 import com.benstone.Actors.GroovyActor;
+import com.benstone.Actors.Player;
+import com.benstone.B2DUserData.GroundUserData;
+import com.benstone.B2DUserData.PlayerUserData;
 import com.benstone.GroovyGame;
+import com.benstone.Utils.B2DUtils;
 import com.benstone.Utils.Constants;
-import com.benstone.Utils.MapMaker;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
-
-import static com.benstone.Utils.Constants.PPM;
-import static com.benstone.Utils.Constants.MIN_WORLD_WIDTH;
-import static com.benstone.Utils.Constants.MIN_WORLD_HEIGHT;
 
 /**
  * Created by Ben on 1/27/2016.
  */
-public class PlayScreen implements Screen, InputProcessor
+public class PlayScreen implements Screen, InputProcessor, ContactListener
 {
     // Reference to main game object to switch screens and access its data
     GroovyGame game;
@@ -49,19 +46,22 @@ public class PlayScreen implements Screen, InputProcessor
     private GroovyShell shell;
     private GroovyActor currentGroovyActor;
 
+    // Game
+    Player player;
+
     public PlayScreen(GroovyGame inGame)
     {
         game = inGame;
 
         // Initialize Scene2D
         // Pass in the min world width and height
-        stageGameWorld = new Stage(new FitViewport(MIN_WORLD_WIDTH / PPM, MIN_WORLD_HEIGHT / PPM));
+        stageGameWorld = new Stage(new FitViewport(Constants.APP_WIDTH, Constants.APP_HEIGHT ));
 
         ///////////////////////////////////////////////////////////////////////////
         //				                    UI                               	 //
         ///////////////////////////////////////////////////////////////////////////
 
-        stageGUI = new Stage(new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
+        stageGUI = new Stage(new FitViewport(Constants.APP_WIDTH, Constants.APP_HEIGHT ));
 
         // Initialize Root Table
         rootTable = new Table();
@@ -77,19 +77,35 @@ public class PlayScreen implements Screen, InputProcessor
         // Create Widgets Layouts and Widgets
         Label title = new Label("Groovy Game Play Screen", skin);
 
+        // JUMP BUTTON
+        TextButton jumpButton = new TextButton("Jump", skin);
+        jumpButton.addListener(new ChangeListener()
+        {
+            @Override
+            public void changed (ChangeListener.ChangeEvent event, Actor actor)
+            {
+                player.Jump();
+            }
+        });
+
+        jumpButton.setSize(100, 100);
+        jumpButton.setPosition(Gdx.graphics.getWidth() - 100, 0);
+
         // Add widgets to rootTable
         rootTable.add(title).center().top();
 
         // Add rootTable to stageGameWorld
         stageGUI.addActor(rootTable);
+        stageGUI.addActor(jumpButton);
 
         ///////////////////////////////////////////////////////////////////////////
         //				                    Box2D                              	 //
         ///////////////////////////////////////////////////////////////////////////
 
         // Initialize Box2D
-        // Set gravity vector and do not allow objects to sleep
-        world = new World(new Vector2(0, -9.8f), false);
+        // Set gravity vector and do allow objects to sleep since we will have a lot of physics objects
+        world = new World(Constants.WORLD_GRAVITY, true);
+        world.setContactListener(this);
         b2dr = new Box2DDebugRenderer();
 
         ///////////////////////////////////////////////////////////////////////////
@@ -103,19 +119,62 @@ public class PlayScreen implements Screen, InputProcessor
         //				             Populate World                            	 //
         ///////////////////////////////////////////////////////////////////////////
 
-        B2DGroovyActor actor = new B2DGroovyActor(
-                new Texture(Gdx.files.internal("test.png")), shell, "rotateObject.groovy",
-                world, true, true,
-                Constants.BIT_WALL, Constants.BIT_PLAYER, (short) 0);
+        // PLAYER
+        Texture playerTexture = new Texture(Gdx.files.internal(Constants.PLAYER_IMAGE_PATH));
 
+        Body playerBody = B2DUtils.makeBody(world, Constants.PLAYER_SPAWN_X, Constants.PLAYER_SPAWN_Y,
+                Constants.PLAYER_WIDTH, Constants.PLAYER_HEIGHT,
+                BodyDef.BodyType.DynamicBody, true,
+                Constants.BIT_PLAYER, Constants.BIT_GROUND, (short) 0,
+                new PlayerUserData());
 
-        stageGameWorld.addActor(actor);
+        player = new Player(Constants.PLAYER_WIDTH, Constants.PLAYER_HEIGHT, playerTexture,
+                playerBody, shell, Constants.PLAYER_SCRIPT,
+                Constants.PLAYER_SIDE_TO_SIDE_SPEED, Constants.PLAYER_JUMP_FORCE);
+
+        stageGameWorld.addActor(player);
+
+        currentGroovyActor = player;
+
+        // GROUND
+        Texture groundTexture = new Texture(Gdx.files.internal(Constants.GROUND_IMAGE_PATH));
+
+        float groundWidth = Gdx.graphics.getWidth() / Constants.WORLD_TO_SCREEN;
+        float groundHeight = 2;
+
+        Body groundBody = B2DUtils.makeBody(world, (Gdx.graphics.getWidth() / 2) / Constants.WORLD_TO_SCREEN, 1,
+                groundWidth, groundHeight,
+                BodyDef.BodyType.KinematicBody, true,
+                Constants.BIT_GROUND, Constants.BIT_PLAYER, (short) 0,
+                new GroundUserData());
+
+        GroovyActor ground = new GroovyActor(groundWidth, groundHeight, groundTexture,
+                groundBody, shell, Constants.GROUND_SCRIPT);
+
+        stageGameWorld.addActor(ground);
+
+        // OBSTACLE
+        Texture obstacleTexture = new Texture(Gdx.files.internal(Constants.GROUND_IMAGE_PATH));
+
+        float obstacleWidth = 2;
+        float obstacleHeight = 6;
+
+        Body obstacleBody = B2DUtils.makeBody(world, (Gdx.graphics.getWidth() / 2) / Constants.WORLD_TO_SCREEN, 5,
+                obstacleWidth, obstacleHeight,
+                BodyDef.BodyType.KinematicBody, true,
+                Constants.BIT_GROUND, Constants.BIT_PLAYER, (short) 0,
+                new GroundUserData());
+
+        GroovyActor obstacle = new GroovyActor(obstacleWidth, obstacleHeight, obstacleTexture,
+                obstacleBody, shell, Constants.GROUND_SCRIPT);
+
+        stageGameWorld.addActor(obstacle);
 
         ///////////////////////////////////////////////////////////////////////////
         //				                    Debug                             	 //
         ///////////////////////////////////////////////////////////////////////////
 
-        // Debug
+        // UI
         rootTable.setDebug(true);
 
     }
@@ -146,7 +205,7 @@ public class PlayScreen implements Screen, InputProcessor
         stageGUI.draw();
 
         // Box2D debug renderer
-        b2dr.render(world, stageGUI.getCamera().combined.scl(PPM));
+        b2dr.render(world, stageGUI.getCamera().combined.scl(Constants.WORLD_TO_SCREEN));
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -159,7 +218,7 @@ public class PlayScreen implements Screen, InputProcessor
 
         // Input
         // Order that the events arrive. Priority matters.
-        InputMultiplexer im = new InputMultiplexer(stageGameWorld, this);
+        InputMultiplexer im = new InputMultiplexer(stageGameWorld, stageGUI, this);
         Gdx.input.setInputProcessor(im);
 
 
@@ -206,9 +265,21 @@ public class PlayScreen implements Screen, InputProcessor
     @Override
     public boolean keyDown(int keycode)
     {
-        if (keycode == Input.Keys.G)
+        // Set values on Key Down
+        switch (keycode)
         {
-            game.setScreen(game.codeScreen);
+            case Input.Keys.ESCAPE:
+                Gdx.app.exit();
+                break;
+            case Input.Keys.A:
+                player.setMoveLeft(true);
+                break;
+            case Input.Keys.D:
+                player.setMoveRight(true);
+                break;
+            case Input.Keys.SPACE:
+                player.Jump();
+                break;
         }
 
         return true;
@@ -216,7 +287,19 @@ public class PlayScreen implements Screen, InputProcessor
 
     @Override
     public boolean keyUp(int keycode) {
-        return false;
+
+        // Set values on Key Down
+        switch (keycode)
+        {
+            case Input.Keys.A:
+                player.setMoveLeft(false);
+                break;
+            case Input.Keys.D:
+                player.setMoveRight(false);
+                break;
+        }
+
+        return true;
     }
 
     @Override
@@ -252,6 +335,38 @@ public class PlayScreen implements Screen, InputProcessor
     }
 
     ///////////////////////////////////////////////////////////////////////////
+    //								Contact									 //
+    ///////////////////////////////////////////////////////////////////////////
+
+    @Override
+    public void beginContact(Contact contact)
+    {
+        Body a = contact.getFixtureA().getBody();
+        Body b = contact.getFixtureB().getBody();
+
+        if ((B2DUtils.bodyIsPlayer(a) && B2DUtils.bodyIsGround(b)) ||
+                (B2DUtils.bodyIsGround(a) && B2DUtils.bodyIsPlayer(b)))
+        {
+            player.Grounded();
+        }
+    }
+
+    @Override
+    public void endContact(Contact contact) {
+
+    }
+
+    @Override
+    public void preSolve(Contact contact, Manifold oldManifold) {
+
+    }
+
+    @Override
+    public void postSolve(Contact contact, ContactImpulse impulse) {
+
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
     //								Getters									 //
     ///////////////////////////////////////////////////////////////////////////
 
@@ -259,4 +374,6 @@ public class PlayScreen implements Screen, InputProcessor
     {
         return currentGroovyActor;
     }
+
+
 }

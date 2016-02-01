@@ -8,7 +8,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.StringBuilder;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.benstone.Actors.GroovyActor;
 import com.benstone.GroovyGame;
@@ -263,7 +262,7 @@ public class CodeScreen implements Screen, InputProcessor
         Gdx.input.setInputProcessor(im);
 
         // Get the currently selected Groovy Actor
-        groovyActor = game.playScreen.getCurrentGroovyActor();
+        groovyActor = game.getPlayScreen().getCurrentGroovyActor();
 
         updateCodeArea();
 
@@ -299,7 +298,7 @@ public class CodeScreen implements Screen, InputProcessor
 
     public void switchToPlayScreen()
     {
-        game.setScreen(game.playScreen);
+        game.setScreen(game.getPlayScreen());
     }
 
     public void updateCodeArea()

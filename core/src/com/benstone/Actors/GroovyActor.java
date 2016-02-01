@@ -3,6 +3,7 @@ package com.benstone.Actors;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.StringBuilder;
@@ -17,19 +18,18 @@ import java.io.*;
  * Created by Ben on 1/22/2016.
  * An actor to simply test scripting functionality
  */
-public class GroovyActor extends Image
+public class GroovyActor extends B2DActor
 {
     private GroovyShell shell;
     private Script script;
     private String groovyScriptText;
 
-    public GroovyActor(Texture texture, GroovyShell inShell, String scriptFileName)
+    public GroovyActor(float inWidth, float inHeight, Texture texture, Body inBody,
+                       GroovyShell inShell, String scriptFileName)
     {
-        super(texture);
+        super(inWidth, inHeight, texture, inBody);
 
         shell = inShell;
-
-        setBounds(getX(), getY(), getWidth(), getHeight());
 
         File file;
 
@@ -59,18 +59,6 @@ public class GroovyActor extends Image
 
         // Debugging purposes only. Should be called outside the class
         // runScript();
-    }
-
-    @Override
-    public void draw(Batch batch, float parentAlpha)
-    {
-        batch.setColor(this.getColor());
-
-        ((TextureRegionDrawable)getDrawable()).draw(batch, getX(), getY(),
-                getOriginX(), getOriginY(),
-                getWidth(), getHeight(),
-                getScaleX(), getScaleY(), getRotation());
-
     }
 
     ///////////////////////////////////////////////////////////////////////////
