@@ -155,6 +155,7 @@ public class SplashScreen implements Screen, InputProcessor {
         // TODO Free up resources
         // If it implements the Disposable interface then it should be disposed.
         stage.dispose();
+        game.dispose();
     }
 
     ///////////////////////////////////////////////////////////////////////////

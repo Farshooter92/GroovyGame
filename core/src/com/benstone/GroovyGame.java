@@ -7,8 +7,6 @@ import com.benstone.Screens.SplashScreen;
 
 public class GroovyGame extends Game{
 
-	// TODO Make into a proper singleton
-
 	public PlayScreen playScreen;
 	public CodeScreen codeScreen;
 

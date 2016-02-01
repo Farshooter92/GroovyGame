@@ -203,3 +203,11 @@ Window.WindowStyle codeWindowStyle = new Window.WindowStyle();
         stageGameWorld.addActor(testActors);
 
         currentGroovyActor = myGroovyActor;
+
+///////////////////////////////////////////////////////////////////////////
+    //							Gradle Jar Creation  						 //
+    ///////////////////////////////////////////////////////////////////////////
+
+gradlew deskop:dist
+
+gradlew android:assembleRelease

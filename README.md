@@ -37,3 +37,9 @@ This is purely experimental. Clone at your own risk.
 In addition to the people I mentioned in the "Other Links" seciton, I would like to send a HUGE thanks William Mora
 for his tutorial [here](http://williammora.com/a-running-game-with-libgdx-part-1/). His tutorial helped me bridge the
 gap between Scene2D and Box2D.
+
+# Art Assets Taken From
+http://opengameart.org/content/ruined-city-background
+http://opengameart.org/content/grey-concrete-wall-512px
+http://opengameart.org/content/bricks-tiled-texture-64x64
+http://opengameart.org/content/communication-terminal-32x32

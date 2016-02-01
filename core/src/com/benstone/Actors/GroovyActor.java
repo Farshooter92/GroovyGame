@@ -1,6 +1,7 @@
 package com.benstone.Actors;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -23,39 +24,25 @@ public class GroovyActor extends B2DActor
     private GroovyShell shell;
     private Script script;
     private String groovyScriptText;
+    private String scriptFileName;
 
     public GroovyActor(float inWidth, float inHeight, Texture texture, Body inBody,
-                       GroovyShell inShell, String scriptFileName)
+                       GroovyShell inShell, String inScriptFileName, String uniqueID)
     {
         super(inWidth, inHeight, texture, inBody);
 
         shell = inShell;
 
-        File file;
+        scriptFileName = inScriptFileName;
 
-        try {
-            file = new File(scriptFileName);
-
-            script = inShell.parse(file);
-
-            groovyScriptText = FileUtils.fileToString(file);
-        }
-        catch (IOException e)
-        {
-            // Print a message saying we caught the exception
-            Gdx.app.log(scriptFileName, e.getMessage());
-
-            // We couldn't load the script so set it to default
-            resetScriptToDefault();
-
-        }
+        loadScript();
 
         // Invoke the constructor passing in the reference to the actor.
         // DOES NOT WORK. ONLY A METHOD CALL.
         //script.invokeMethod("Constructor", this);
 
         // Storing Data into the script
-        script.setProperty("Actor", this);
+        script.setProperty(uniqueID, this);
 
         // Debugging purposes only. Should be called outside the class
         // runScript();
@@ -70,21 +57,52 @@ public class GroovyActor extends B2DActor
         script = shell.parse(textScript);
     }
 
-    public void resetScriptToDefault()
+    private void loadScript()
+    {
+
+        try {
+
+            FileHandle fileHandle = Gdx.files.internal(scriptFileName);
+            groovyScriptText = fileHandle.readString();
+
+            // Get rid of all the returns
+            groovyScriptText = groovyScriptText.replaceAll("\r", "");
+
+            script = shell.parse(groovyScriptText);
+        }
+        catch (Exception e)
+        {
+            // Print a message saying we caught the exception
+            Gdx.app.log(scriptFileName, e.getMessage());
+
+            // We couldn't load the script so set it to default
+            resetScriptToDefault();
+
+        }
+    }
+
+    private void resetScriptToDefault()
     {
         // Try to set the file to the default
         try
         {
-            File file = new File("default.groovy");
+            FileHandle fileHandle = Gdx.files.internal(scriptFileName);
+            groovyScriptText = fileHandle.readString();
 
-            script = shell.parse(file);
+            // Get rid of all the returns
+            groovyScriptText = groovyScriptText.replaceAll("\r", "");
 
-            groovyScriptText = FileUtils.fileToString(file);
+            script = shell.parse(groovyScriptText);
         }
-        catch (IOException ioe)
+        catch (Exception e)
         {
-            Gdx.app.log("default.groovy", ioe.getMessage());
+            Gdx.app.log("default.groovy", e.getMessage());
         }
+    }
+
+    public void resetScript()
+    {
+        loadScript();
     }
 
     public void runScript()
@@ -97,6 +115,12 @@ public class GroovyActor extends B2DActor
         {
             Gdx.app.log("Error", "Groovy script is null.");
         }
+    }
+
+    public void setScriptProperty(String propertyName, Object o)
+    {
+        // Storing Data into the script
+        script.setProperty(propertyName, o);
     }
 
     ///////////////////////////////////////////////////////////////////////////

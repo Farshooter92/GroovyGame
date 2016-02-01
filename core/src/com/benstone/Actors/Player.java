@@ -11,20 +11,26 @@ import groovy.lang.GroovyShell;
 public class Player extends GroovyActor{
 
     // Movement
+    private boolean binaryInput = true;
     private boolean moveLeft = false;
     private boolean moveRight = false;
     public float sideToSideSpeed = 1;
+    // Must be between -1 and 1
+    public float sideToSideInput = 0;
 
     private boolean isJumping = false;
     private boolean isGrounded = false;
+
     private float jumpForce = 1;
 
     public Player(float inWidth, float inHeight, Texture texture, Body inBody,
-                  GroovyShell inShell, String scriptFileName,
+                  GroovyShell inShell, String scriptFileName, String uniqueID,
                   float inSideToSideSpeed, float inJumpForce)
     {
         super(inWidth, inHeight, texture, inBody,
-            inShell, scriptFileName);
+            inShell, scriptFileName, uniqueID);
+
+        setScriptProperty("Actor", this);
 
         sideToSideSpeed = inSideToSideSpeed;
         jumpForce = inJumpForce;
@@ -39,23 +45,28 @@ public class Player extends GroovyActor{
     {
         super.act(delta);
 
-        // Reset values so we don't move when nothing is pressed
-        int sideToSideDir = 0;
+        if(binaryInput) {
+            // Reset values so we don't move when nothing is pressed
+            int sideToSideDir = 0;
 
-        // Should I move to left
-        if(moveLeft)
-        {
-            sideToSideDir -= 1;
+            // Should I move to left
+            if (moveLeft) {
+                sideToSideDir -= 1;
+            }
+
+            // Should I move to right
+            if (moveRight) {
+                sideToSideDir += 1;
+            }
+
+            // Update Body Position
+            body.setLinearVelocity(new Vector2(sideToSideDir * sideToSideSpeed, body.getLinearVelocity().y));
         }
-
-        // Should I move to right
-        if(moveRight)
+        else
         {
-            sideToSideDir += 1;
+            // Update Body Position
+            body.setLinearVelocity(new Vector2(sideToSideInput * sideToSideSpeed, body.getLinearVelocity().y));
         }
-
-        // Update Body Position
-        body.setLinearVelocity(new Vector2(sideToSideDir * sideToSideSpeed, body.getLinearVelocity().y));
 
     }
 
@@ -82,13 +93,31 @@ public class Player extends GroovyActor{
     //				                 Setters                             	 //
     ///////////////////////////////////////////////////////////////////////////
 
+    public void setJumpForce(float jumpForce)
+    {
+        this.jumpForce = jumpForce;
+    }
+
     public void setMoveRight(boolean moveRight)
     {
+        this.binaryInput = true;
         this.moveRight = moveRight;
     }
 
     public void setMoveLeft(boolean moveLeft)
     {
+        this.binaryInput = true;
         this.moveLeft = moveLeft;
+    }
+
+    public void setSideToSideInput(float sideToSideInput)
+    {
+        this.binaryInput = false;
+        this.sideToSideInput = sideToSideInput;
+    }
+
+    public void setSideToSideSpeed(float sideToSideSpeed)
+    {
+        this.sideToSideSpeed = sideToSideSpeed;
     }
 }

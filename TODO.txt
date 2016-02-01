@@ -1,6 +1,4 @@
 Work On in order:
-create movement joystick and wire it up to player
-create clicking behavior to select objects and go to code editor
-finish TODO's in code
-
+Build for windows
+Build for android
 Create javadoc for Player actor so users can use it as a scripting reference

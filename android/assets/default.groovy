@@ -1,13 +1,17 @@
-import com.badlogic.gdx.scenes.scene2d.Actor
+import com.benstone.Actors.B2DActor
+import com.benstone.Utils.Constants
 
-// This is a simple script to rotate an actor 45 degrees
-// All of this is inside of a Run method
+// This is a simple script for some default behavior
 
 // Properties
-Actor actor = (Actor)getProperty("Actor");
+// Want to get the ground actor
+B2DActor actor = (B2DActor)getProperty(Constants.GROUND_ID)
 
 if (actor != null)
 {
-    actor.setRotation((float)(actor.getRotation() + 45))
-    println "rotate"
+    float previousPosX = actor.getBody().getTransform().getPosition().x
+    float previousPosY =  actor.getBody().getTransform().getPosition().y
+
+    // Move the actor down 1 meter
+    actor.getBody().setTransform(previousPosX, (float)(previousPosY - 1), 0f)
 }

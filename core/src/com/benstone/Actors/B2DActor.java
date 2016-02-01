@@ -6,17 +6,19 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.utils.Disposable;
 import com.benstone.Utils.B2DUtils;
 
 /**
  * Created by Ben on 1/31/2016.
  */
-public class B2DActor extends Actor {
+public class B2DActor extends Actor implements Disposable{
 
     // Box2D
     protected Body body;
-    float width;
-    float height;
+    private float width;
+    private float height;
 
     // Screen rendered box
     protected Rectangle screenRectangle;
@@ -32,6 +34,8 @@ public class B2DActor extends Actor {
         this.body = inBody;
 
         screenRectangle = new Rectangle();
+
+        setTouchable(Touchable.enabled);
     }
 
     @Override
@@ -44,6 +48,7 @@ public class B2DActor extends Actor {
         screenRectangle.width = B2DUtils.transformToScreen(width);
         screenRectangle.height = B2DUtils.transformToScreen(height);
 
+        setBounds(screenRectangle.x, screenRectangle.y, screenRectangle.width, screenRectangle.height);
     }
 
     @Override
@@ -55,5 +60,18 @@ public class B2DActor extends Actor {
         batch.draw(image, screenRectangle.x, screenRectangle.y, screenRectangle.getWidth(),
                 screenRectangle.getHeight());
 
+    }
+
+    @Override
+    public void dispose() {
+        image.getTexture().dispose();
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    //				                 Getters                               	 //
+    ///////////////////////////////////////////////////////////////////////////
+
+    public Body getBody() {
+        return body;
     }
 }

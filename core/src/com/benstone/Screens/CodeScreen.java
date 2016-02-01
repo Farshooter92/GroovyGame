@@ -141,6 +141,10 @@ public class CodeScreen implements Screen, InputProcessor
                     {
                         logException(cfe.getMessage());
                     }
+                    catch (Exception e)
+                    {
+                        logException(e.getMessage());
+                    }
                 }
                 else
                 {
@@ -160,13 +164,28 @@ public class CodeScreen implements Screen, InputProcessor
             @Override
             public void changed (ChangeListener.ChangeEvent event, Actor actor)
             {
-                groovyActor.resetScriptToDefault();
+                groovyActor.resetScript();
                 updateCodeArea();
             }
         });
 
         actionButtonsWindow.row();
         actionButtonsWindow.add(resetButton).expandX().fillX();
+
+        // EXIT BUTTON
+
+        TextButton exitButton = new TextButton("Exit", skin);
+        exitButton.addListener(new ChangeListener()
+        {
+            @Override
+            public void changed (ChangeListener.ChangeEvent event, Actor actor)
+            {
+                switchToPlayScreen();
+            }
+        });
+
+        actionButtonsWindow.row();
+        actionButtonsWindow.add(exitButton).expandX().fillX();
 
         ///////////////////////////////////////////////////////////////////////////
         //					CONSOLE AND EXCEPTION WINDOWS						 //
@@ -264,6 +283,7 @@ public class CodeScreen implements Screen, InputProcessor
         // Get the currently selected Groovy Actor
         groovyActor = game.getPlayScreen().getCurrentGroovyActor();
 
+        System.out.println(groovyActor.getName());
         updateCodeArea();
 
         //codeArea.setText();
@@ -292,8 +312,12 @@ public class CodeScreen implements Screen, InputProcessor
     }
 
     @Override
-    public void dispose() {
-
+    public void dispose()
+    {
+        game.dispose();
+        stage.dispose();
+        skin.dispose();
+        groovyActor.dispose();
     }
 
     public void switchToPlayScreen()

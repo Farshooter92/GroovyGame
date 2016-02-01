@@ -7,6 +7,8 @@ import com.badlogic.gdx.math.Vector2;
  */
 public final class Constants
 {
+    public static final boolean DEBUG_BUILD = false;
+
     public static final int APP_WIDTH = 800;
     public static final int APP_HEIGHT = 480;
     public static final float WORLD_TO_SCREEN = 32;
@@ -28,10 +30,12 @@ public final class Constants
     public static final String PLAYER_IMAGE_PATH = "player.png";
     public static final String BACKGROUND_IMAGE_PATH = "background.png";
     public static final String GROUND_IMAGE_PATH = "ground.png";
+    public static final String OBSTACLE_IMAGE_PATH = "obstacle.png";
 
     // Scripts
     public static final String PLAYER_SCRIPT = "player.groovy";
     public static final String GROUND_SCRIPT = "ground.groovy";
+    public static final String OBSTACLE_SCRIPT = "obstacle.groovy";
 
     // Font
     public static final String FONT_NAME = "OCR_A_Extended_Regular.ttf";
@@ -43,4 +47,17 @@ public final class Constants
     public static final float PLAYER_SPAWN_Y = 4;
     public static final float PLAYER_SIDE_TO_SIDE_SPEED = 1;
     public static final float PLAYER_JUMP_FORCE = 5000;
+
+    // Names
+    public static final String PLAYER_ID = "Player";
+    public static final String GROUND_ID = "Ground";
+    public static final String OBSTACLE_ID = "Obstacle";
+
+    // Controls
+    public static final float JUMP_BUTTON_WIDTH = 100;
+    public static final float JUMP_BUTTON_HEIGHT = 100;
+    public static final float MOVEMENT_TOUCHPAD_WIDTH = 100;
+    public static final float MOVEMENT_TOUCHPAD_HEIGHT = 100;
+    public static final float MOVEMENT_TOUCHPAD_DEADZONE = 5;
+
 }

@@ -3,13 +3,11 @@ package com.benstone.Screens;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.*;
 import com.benstone.Actors.GroovyActor;
@@ -88,8 +86,22 @@ public class PlayScreen implements Screen, InputProcessor, ContactListener
             }
         });
 
-        jumpButton.setSize(100, 100);
-        jumpButton.setPosition(Gdx.graphics.getWidth() - 100, 0);
+        jumpButton.setSize(Constants.JUMP_BUTTON_WIDTH, Constants.JUMP_BUTTON_HEIGHT);
+        jumpButton.setPosition(Gdx.graphics.getWidth() - Constants.JUMP_BUTTON_WIDTH, 0);
+
+        // MOVEMENT TOUCHPAD
+        final Touchpad movementTouchpad = new Touchpad(Constants.MOVEMENT_TOUCHPAD_DEADZONE, skin);
+        movementTouchpad.addListener(new ChangeListener()
+        {
+            @Override
+            public void changed (ChangeListener.ChangeEvent event, Actor actor)
+            {
+                player.setSideToSideInput(movementTouchpad.getKnobPercentX());
+            }
+        });
+
+        movementTouchpad.setSize(Constants.MOVEMENT_TOUCHPAD_WIDTH, Constants.MOVEMENT_TOUCHPAD_HEIGHT);
+        movementTouchpad.setPosition(0, 0);
 
         // Add widgets to rootTable
         rootTable.add(title).center().top();
@@ -97,6 +109,7 @@ public class PlayScreen implements Screen, InputProcessor, ContactListener
         // Add rootTable to stageGameWorld
         stageGUI.addActor(rootTable);
         stageGUI.addActor(jumpButton);
+        stageGUI.addActor(movementTouchpad);
 
         ///////////////////////////////////////////////////////////////////////////
         //				                    Box2D                              	 //
@@ -119,6 +132,12 @@ public class PlayScreen implements Screen, InputProcessor, ContactListener
         //				             Populate World                            	 //
         ///////////////////////////////////////////////////////////////////////////
 
+        // BACKGROUND
+        Image background = new Image(new Texture(Gdx.files.internal(Constants.BACKGROUND_IMAGE_PATH)));
+        background.setPosition(0, 0);
+
+        stageGameWorld.addActor(background);
+
         // PLAYER
         Texture playerTexture = new Texture(Gdx.files.internal(Constants.PLAYER_IMAGE_PATH));
 
@@ -129,8 +148,10 @@ public class PlayScreen implements Screen, InputProcessor, ContactListener
                 new PlayerUserData());
 
         player = new Player(Constants.PLAYER_WIDTH, Constants.PLAYER_HEIGHT, playerTexture,
-                playerBody, shell, Constants.PLAYER_SCRIPT,
+                playerBody, shell, Constants.PLAYER_SCRIPT, Constants.PLAYER_ID,
                 Constants.PLAYER_SIDE_TO_SIDE_SPEED, Constants.PLAYER_JUMP_FORCE);
+
+        player.setName(Constants.PLAYER_ID);
 
         stageGameWorld.addActor(player);
 
@@ -149,12 +170,14 @@ public class PlayScreen implements Screen, InputProcessor, ContactListener
                 new GroundUserData());
 
         GroovyActor ground = new GroovyActor(groundWidth, groundHeight, groundTexture,
-                groundBody, shell, Constants.GROUND_SCRIPT);
+                groundBody, shell, Constants.GROUND_SCRIPT, Constants.GROUND_ID);
+
+        ground.setName(Constants.GROUND_ID);
 
         stageGameWorld.addActor(ground);
 
         // OBSTACLE
-        Texture obstacleTexture = new Texture(Gdx.files.internal(Constants.GROUND_IMAGE_PATH));
+        Texture obstacleTexture = new Texture(Gdx.files.internal(Constants.OBSTACLE_IMAGE_PATH));
 
         float obstacleWidth = 2;
         float obstacleHeight = 6;
@@ -166,7 +189,9 @@ public class PlayScreen implements Screen, InputProcessor, ContactListener
                 new GroundUserData());
 
         GroovyActor obstacle = new GroovyActor(obstacleWidth, obstacleHeight, obstacleTexture,
-                obstacleBody, shell, Constants.GROUND_SCRIPT);
+                obstacleBody, shell, Constants.OBSTACLE_SCRIPT, Constants.OBSTACLE_ID);
+
+        obstacle.setName(Constants.OBSTACLE_ID);
 
         stageGameWorld.addActor(obstacle);
 
@@ -174,9 +199,11 @@ public class PlayScreen implements Screen, InputProcessor, ContactListener
         //				                    Debug                             	 //
         ///////////////////////////////////////////////////////////////////////////
 
-        // UI
-        rootTable.setDebug(true);
-
+        if(Constants.DEBUG_BUILD)
+        {
+            // UI
+            rootTable.setDebug(true);
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -201,11 +228,17 @@ public class PlayScreen implements Screen, InputProcessor, ContactListener
         stageGameWorld.act(Gdx.graphics.getDeltaTime());
         stageGameWorld.draw();
 
-        stageGUI.act(Gdx.graphics.getDeltaTime());
-        stageGUI.draw();
+        if (Gdx.app.getType() == Application.ApplicationType.Android)
+        {
+            stageGUI.act(Gdx.graphics.getDeltaTime());
+            stageGUI.draw();
+        }
 
-        // Box2D debug renderer
-        b2dr.render(world, stageGUI.getCamera().combined.scl(Constants.WORLD_TO_SCREEN));
+        if (Constants.DEBUG_BUILD)
+        {
+            // Box2D debug renderer
+            b2dr.render(world, stageGUI.getCamera().combined.scl(Constants.WORLD_TO_SCREEN));
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -256,6 +289,10 @@ public class PlayScreen implements Screen, InputProcessor, ContactListener
         // TODO Free up resources
         // If it implements the Disposable interface then it should be disposed.
         stageGameWorld.dispose();
+        stageGUI.dispose();
+        currentGroovyActor.dispose();
+        game.dispose();
+
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -308,10 +345,26 @@ public class PlayScreen implements Screen, InputProcessor, ContactListener
     }
 
     @Override
-    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        // TODO make it so currentGroovyActor is set by clicking on it
+    public boolean touchDown(int screenX, int screenY, int pointer, int button)
+    {
 
-        return false;
+        // Screen Coords Top Left of screen
+        // Stage Coords bottom left of the world
+
+        // Normally you should store this variable somewhere else and override its value
+        Vector2 coord = stageGameWorld.screenToStageCoordinates(new Vector2((float) screenX, (float) screenY));
+
+        // True if you only want to catch touchables
+        // Can be overriden to be different shapes
+        GroovyActor hitActor = (GroovyActor) stageGameWorld.hit(coord.x, coord.y, false);
+
+        if (hitActor != null && hitActor instanceof GroovyActor)
+        {
+            currentGroovyActor = hitActor;
+            game.setScreen(game.getCodeScreen());
+        }
+
+        return true;
     }
 
     @Override
