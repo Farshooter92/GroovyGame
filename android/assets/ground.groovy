@@ -13,5 +13,5 @@ if (ground != null)
     float previousPosY =  ground.getBody().getTransform().getPosition().y
 
     // Move the actor down 1 meter
-    // ground.getBody().setTransform(previousPosX, (float)(previousPosY - 1), 0f)
+    ground.getBody().setTransform(previousPosX, (float)(previousPosY - 1), 0f)
 }

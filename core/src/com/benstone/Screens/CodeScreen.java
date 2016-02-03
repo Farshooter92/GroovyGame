@@ -11,6 +11,7 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.benstone.Actors.GroovyActor;
 import com.benstone.GroovyGame;
+import com.benstone.Utils.Constants;
 import com.benstone.Utils.FileUtils;
 import org.codehaus.groovy.control.CompilationFailedException;
 
@@ -238,9 +239,11 @@ public class CodeScreen implements Screen, InputProcessor
         // Add actors to stage
         stage.addActor(rootTable);
 
-        // Debug
-        rootTable.setDebug(true);
-        actionButtonsWindow.debug();
+        if (Constants.DEBUG_BUILD) {
+            // Debug
+            rootTable.setDebug(true);
+            actionButtonsWindow.debug();
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////

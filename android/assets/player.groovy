@@ -10,8 +10,8 @@ Player player = (Player)getProperty(Constants.PLAYER_ID)
 if (player != null)
 {
     // Make the player faster
-    // player.setSideToSideSpeed(8);
+    player.setSideToSideSpeed(8);
 
     // Make the player jump higher
-    // player.setJumpForce(12000);
+    player.setJumpForce(12000);
 }

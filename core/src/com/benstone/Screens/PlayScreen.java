@@ -356,12 +356,16 @@ public class PlayScreen implements Screen, InputProcessor, ContactListener
 
         // True if you only want to catch touchables
         // Can be overriden to be different shapes
-        GroovyActor hitActor = (GroovyActor) stageGameWorld.hit(coord.x, coord.y, false);
 
-        if (hitActor != null && hitActor instanceof GroovyActor)
+        // TODO Make this much more cleaner
+        if(stageGameWorld.hit(coord.x, coord.y, false) instanceof GroovyActor)
         {
-            currentGroovyActor = hitActor;
-            game.setScreen(game.getCodeScreen());
+            GroovyActor hitActor = (GroovyActor) stageGameWorld.hit(coord.x, coord.y, false);
+            if (hitActor != null)
+            {
+                currentGroovyActor = hitActor;
+                game.setScreen(game.getCodeScreen());
+            }
         }
 
         return true;
