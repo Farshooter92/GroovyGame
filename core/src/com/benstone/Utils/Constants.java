@@ -7,8 +7,10 @@ import com.badlogic.gdx.math.Vector2;
  */
 public final class Constants
 {
+    // Debug variables
     public static final boolean DEBUG_BUILD = false;
 
+    // Display properties
     public static final int APP_WIDTH = 800;
     public static final int APP_HEIGHT = 480;
     public static final float WORLD_TO_SCREEN = 32;

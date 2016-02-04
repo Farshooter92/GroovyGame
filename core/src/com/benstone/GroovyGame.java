@@ -7,6 +7,7 @@ import com.benstone.Screens.SplashScreen;
 
 public class GroovyGame extends Game{
 
+	// Core Game Screens to switch between during apps lifecycle
 	public PlayScreen playScreen;
 	public CodeScreen codeScreen;
 

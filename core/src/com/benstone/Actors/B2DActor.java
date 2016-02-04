@@ -12,6 +12,7 @@ import com.benstone.Utils.B2DUtils;
 
 /**
  * Created by Ben on 1/31/2016.
+ * An actor responsible for B2D behavior
  */
 public class B2DActor extends Actor implements Disposable{
 

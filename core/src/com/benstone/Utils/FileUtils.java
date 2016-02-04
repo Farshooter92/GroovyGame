@@ -16,6 +16,12 @@ public class FileUtils {
     //						    Utility Methods								 //
     ///////////////////////////////////////////////////////////////////////////
 
+    /**
+     * Reads a given file and stores its contents into a String
+     * @param file
+     * @return
+     * @throws IOException
+     */
     public static String fileToString(File file) throws IOException
     {
         FileReader fr = new FileReader(file);

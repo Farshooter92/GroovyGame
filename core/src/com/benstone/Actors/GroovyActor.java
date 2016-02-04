@@ -17,7 +17,7 @@ import java.io.*;
 
 /**
  * Created by Ben on 1/22/2016.
- * An actor to simply test scripting functionality
+ * An actor responsible scripting functionality
  */
 public class GroovyActor extends B2DActor
 {

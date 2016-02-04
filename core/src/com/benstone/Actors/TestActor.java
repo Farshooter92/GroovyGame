@@ -9,7 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.benstone.Utils.Constants;
 
 /**
- * Created by Ben on 1/31/2016.
+ * A purely experimental class
  */
 public class TestActor extends Actor {
 
