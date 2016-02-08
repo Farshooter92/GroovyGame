@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.benstone.Actors.CodeArea;
 import com.benstone.Actors.GroovyActor;
 import com.benstone.GroovyGame;
 import com.benstone.Utils.Constants;
@@ -37,7 +38,7 @@ public class CodeScreen implements Screen, InputProcessor
     // UI
     private Table rootTable;
     private Skin skin;
-    private TextArea codeArea;
+    private CodeArea codeArea;
     private Label consoleText;
     private Label exceptionsText;
 
@@ -76,7 +77,7 @@ public class CodeScreen implements Screen, InputProcessor
         ///////////////////////////////////////////////////////////////////////////
 
         // Initialize Widgets with skin
-        codeArea = new TextArea("Enter Code Here", skin);
+        codeArea = new CodeArea("Enter Code Here", skin);
         Window codeWindow = new Window("Code Editor", skin);
         codeWindow.setMovable(false);
         codeWindow.add(codeArea).expand().fill();
